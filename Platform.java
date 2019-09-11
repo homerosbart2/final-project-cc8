@@ -1,5 +1,6 @@
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.io.*;
 import java.net.*;
 import java.util.Date;
@@ -11,18 +12,41 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.nio.file.Files;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.Properties;
+
+import org.omg.CORBA.UNKNOWN;
+import org.sqlite.SQLiteConnection;
 
 /**
  * Platform
  */
 public class Platform {
+    public static AtomicInteger correlative = new AtomicInteger(-1);
+
+    private static String db = "default.db";
+    private static Connection sqliteConnection;
+
     public static void main(String[] args) {
         Platform platform = new Platform();
         platform.initializeServer();
     }
 
-    public void initializeServer(){
+    public static Connection connect() {
+        Connection conn = null;
+        try {
+            conn = DriverManager.getConnection("jdbc:sqlite:" + Platform.db);
+        } catch (SQLException e) {
+            System.out.println(e.getMessage());
+        } 
+        return conn;
+    }
+
+    private void initializeServer(){
         int nThreads = 20;
         int port = 80;
 
@@ -41,13 +65,16 @@ public class Platform {
             else System.out.println("ALERTA:\tLa configuracion 'nThreads' no se ha encontrado en server.conf. Se utilizara el default: 20.");
                 
 
-            if(defaultProps.containsKey("nThreads"))
+            if(defaultProps.containsKey("port"))
                 try {
                     port = Integer.valueOf(String.valueOf(defaultProps.get("port")));
                 } catch (Exception e) {
-                    System.out.println("ALERTA\tLa configuración 'port' no es correcta. Se utilizará el default: 2407.");
+                    System.out.println("ALERTA\tLa configuración 'port' no es correcta. Se utilizará el default: " + port + ".");
                 }
-            else System.out.println("ALERTA:\tLa configuracion 'port' no se ha encontrado en server.conf. Se utilizara el default: 2407.");
+            else System.out.println("ALERTA:\tLa configuracion 'port' no se ha encontrado en server.conf. Se utilizara el default: " + port + ".");
+
+            if (defaultProps.containsKey("db")) db = defaultProps.getProperty("db");
+            else System.out.println("ALERTA:\tLa configuracion 'db' no se ha encontrado en server.conf. Se utilizara el default: " + db + ".");
 
         } catch (FileNotFoundException e) {
             System.out.println("ALERTA:\tNo existe el archivo server.conf. Si desea configurar el servidor, agrueguelo a la carpeta.");
@@ -55,10 +82,26 @@ public class Platform {
             System.out.println(e);
         }
 
-        System.out.println("INFO:\t\tIniciando el servidor con " + nThreads + " threads en el puerto " + port + ". La configuracion puede ser cambiada en server.conf.");
+        System.out.println("INFO:\t\tIniciando el servidor con " + nThreads + " threads en el puerto " + port + ". Utilizando la base de datos " + Platform.db + ". La configuracion puede ser cambiada en server.conf.");
 
         try {
-            NetworkService networkService = new NetworkService(port, nThreads);
+            Platform.sqliteConnection = connect();
+            Statement statement = sqliteConnection.createStatement();
+            statement.setQueryTimeout(5);
+            String query = "CREATE TABLE IF NOT EXISTS requests (id int primary key, date datetime, socket varchar, temperature double, motor_speed int, m1 int, m2 int);";
+            statement.execute(query);
+            
+            query = "SELECT COUNT(id) as count, MAX(id) as max FROM requests;";
+            ResultSet rs = statement.executeQuery(query);
+            while (rs.next()) {
+                int count = rs.getInt("count");
+                int max = rs.getInt("max");
+                if (count > 0 && max > Platform.correlative.get()) Platform.correlative.set(max);
+            }
+            rs.close();
+
+            System.out.println("INFO:\tSiguiente correlativo: " + (Platform.correlative.get() + 1));
+            NetworkService networkService = new NetworkService(port, nThreads, Platform.sqliteConnection);
     
             new Thread(networkService).start();
         } catch (BindException e) {
@@ -72,17 +115,19 @@ public class Platform {
 class NetworkService implements Runnable {
     private final ServerSocket serverSocket;
     private final ExecutorService pool;
+    private final Connection sqliteConnection;
 
-    public NetworkService(int port, int nThreads)
+    public NetworkService(int port, int nThreads, Connection sqliteConnection)
         throws IOException {
-        serverSocket = new ServerSocket(port);
-        pool = Executors.newFixedThreadPool(nThreads);
+        this.serverSocket = new ServerSocket(port);
+        this.pool = Executors.newFixedThreadPool(nThreads);
+        this.sqliteConnection = sqliteConnection;
     }
 
     public void run() {
         try {
             for (;;) {
-                pool.execute(new Handler(serverSocket.accept()));
+                pool.execute(new Handler(this.serverSocket.accept(), this.sqliteConnection));
             }
         } catch (IOException ex) {
             pool.shutdown();
@@ -92,10 +137,13 @@ class NetworkService implements Runnable {
 
 class Handler implements Runnable {
     private final Socket s;
-    static DateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
+    static DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+    private Connection sqliteConnection;
+    private Statement statement;
 
-    Handler(Socket socket) { 
+    Handler(Socket socket, Connection sqliteConnection) { 
         this.s = socket;
+        this.sqliteConnection = sqliteConnection;
     }
 
     private String getContentType(String fileRequested) {
@@ -155,7 +203,7 @@ class Handler implements Runnable {
                         splittedUrl = url.split("\\?");
                         fileName = splittedUrl[0];
                         System.out.println("FILE:\t" + fileName);
-                        if (splittedUrl.length > 2) {
+                        if (splittedUrl.length > 1) {
                             System.out.println("PARAMS:\t" + splittedUrl[1]);
                             String[] keyValueParams = splittedUrl[1].split("&");
                             for (String param : keyValueParams) {
@@ -194,11 +242,42 @@ class Handler implements Runnable {
                     out.println();
                     bufferFileOut.write(fileData);
                 }else if(fileName.equals("request.json")){
+                    String temperature =    params.containsKey("temperature") ? params.get("temperature") : "";
+                    String motorSpeed =     params.containsKey("motor_speed") ? params.get("motor_speed") : "";
+                    String m1 =             params.containsKey("m1") ? params.get("m1") : "";
+                    String m2 =             params.containsKey("m2") ? params.get("m2") : "";
+                    String date =           dateFormat.format(new Date());
+                    String ip =             this.s.getRemoteSocketAddress().toString();
+
+                    String query = "INSERT INTO requests VALUES ("
+                        + (Platform.correlative.getAndIncrement() + 1) + ",'"
+                        + date + "','"
+                        + ip + "',"
+                        + temperature + ","
+                        + motorSpeed + ","
+                        + m1 + ","
+                        + m2 + ");";
+
+                    System.out.println("QUERY:\t" + query);
+
+                    try {
+                        if (this.sqliteConnection.isClosed() || statement == null) {
+                            this.sqliteConnection = Platform.connect();
+                            this.statement = sqliteConnection.createStatement();
+                            statement.setQueryTimeout(5);
+                        }
+                        statement.executeUpdate(query);
+                    } catch (SQLException e) {
+                        System.out.println(e);
+                    }
+                    
                     String response = "{" + 
                         "\"motor_speed\": 175," + 
-                        " \"success\": true" + 
+                        "\"success\": true," + 
+                        "\"m1\": " + temperature.substring(1,2) + "," +
+                        "\"m2\": " + temperature.substring(0,1) +
                     "}";
-                    if (params.containsKey("temperature")) System.out.println("TMP:\t" + params.get("temperature"));
+
                     out.println("HTTP/1.1 200 OK");
                     out.println("Server: MeshServer");
                     out.println("Date: " + new Date());
