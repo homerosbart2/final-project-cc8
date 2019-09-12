@@ -90,6 +90,8 @@ public class Platform {
             statement.setQueryTimeout(5);
             String query = "CREATE TABLE IF NOT EXISTS requests (id int primary key, date datetime, socket varchar, temperature double, motor_speed int, m1 int, m2 int);";
             statement.execute(query);
+            query = "CREATE TABLE IF NOT EXISTS hardware (motor_speed int, m1 int, m2 int);";
+            statement.execute(query);
             
             query = "SELECT COUNT(id) as count, MAX(id) as max FROM requests;";
             ResultSet rs = statement.executeQuery(query);
@@ -140,6 +142,7 @@ class Handler implements Runnable {
     static DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
     private Connection sqliteConnection;
     private Statement statement;
+    private static int speed = 255;
 
     Handler(Socket socket, Connection sqliteConnection) { 
         this.s = socket;
@@ -247,16 +250,22 @@ class Handler implements Runnable {
                     String m1 =             params.containsKey("m1") ? params.get("m1") : "";
                     String m2 =             params.containsKey("m2") ? params.get("m2") : "";
                     String date =           dateFormat.format(new Date());
-                    String ip =             this.s.getRemoteSocketAddress().toString();
+                    String socket =         this.s.getRemoteSocketAddress().toString();
 
-                    String query = "INSERT INTO requests VALUES ("
+                    String query = "INSERT INTO requests (id,date,socket";
+                    query += !temperature.isEmpty() ? ",temperature" : "";
+                    query += !motorSpeed.isEmpty() ? ",motor_speed" : "";
+                    query += !m1.isEmpty() ? ",m1" : "";
+                    query += !m2.isEmpty() ? ",m2" : "";
+                    query += ") VALUES ("
                         + (Platform.correlative.getAndIncrement() + 1) + ",'"
                         + date + "','"
-                        + ip + "',"
-                        + temperature + ","
-                        + motorSpeed + ","
-                        + m1 + ","
-                        + m2 + ");";
+                        + socket + "'";
+                    query += !temperature.isEmpty() ? "," + temperature : "";
+                    query += !motorSpeed.isEmpty() ? "," + motorSpeed : "";
+                    query += !m1.isEmpty() ? "," + m1 : "";
+                    query += !m2.isEmpty() ? "," + m2 : "";
+                    query += ");";
 
                     System.out.println("QUERY:\t" + query);
 
@@ -270,12 +279,29 @@ class Handler implements Runnable {
                     } catch (SQLException e) {
                         System.out.println(e);
                     }
+
+                    int m1Int = 0, m2Int = 0;
+
+                    query = "SELECT * FROM hardware;";
+                    ResultSet rs = statement.executeQuery(query);
+                    while (rs.next()) {
+                        speed = rs.getInt("motor_speed");
+                        m1Int = rs.getInt("m1");
+                        m2Int = rs.getInt("m2");
+                        System.out.println("MTR_SPD:\t" + speed);
+                        System.out.println("MATRIX1:\t" + m1Int);
+                        System.out.println("MATRIX2:\t" + m2Int);
+                    }
+                    rs.close();
+                    
+
+                    // speed = speed == 255 ? 125 : speed == 125 ? 0 : 255; 
                     
                     String response = "{" + 
-                        "\"motor_speed\": 175," + 
+                        "\"motor_speed\": " + speed + "," + 
                         "\"success\": true," + 
-                        "\"m1\": " + temperature.substring(1,2) + "," +
-                        "\"m2\": " + temperature.substring(0,1) +
+                        "\"m1\": " + m1Int + "," +
+                        "\"m2\": " + m2Int +
                     "}";
 
                     out.println("HTTP/1.1 200 OK");
