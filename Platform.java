@@ -172,9 +172,10 @@ class Handler implements Runnable {
         BufferedReader in = null;
         PrintWriter out = null;
         OutputStream bufferFileOut = null;
-        String fileName, method, input, contentType, connection, url;
+        String fileName, props, method, input, contentType, connection, url;
         String[] splittedUrl;
-        int count, fileLength;
+        char[] body;
+        int count, contentLength;
         HashMap<String, String> params = new HashMap<String, String>();
 
         try {
@@ -183,51 +184,76 @@ class Handler implements Runnable {
             bufferFileOut = s.getOutputStream();
             fileName = "";
             url = "";
+            props = "";
             method = "";
             input = "";
             contentType = "";
             connection = "";
             count = 0;
+            contentLength = 0;
 
             while(true){
                 try{
                     input = in.readLine();
-                    if (input.startsWith("GET")) System.out.println(input);
+                    if (input.startsWith("GET") || input.startsWith("POST")) System.out.println(input);
+                    else {
+                        System.out.println(input);
+                    }
                 }catch(Exception e){
-
+                    System.out.println("catch");
                 } 
                 StringTokenizer parse = null;
-                if (input != null) parse = new StringTokenizer(input);
+                if (input != null) {
+                    parse = new StringTokenizer(input);
+                } else {
+                    System.out.println("input es null");
+                }
                 if(parse != null && parse.hasMoreTokens()){
+                    // System.out.println("datos");
+                    props = parse.nextToken().toUpperCase();
                     if(count == 0){
-                        method = parse.nextToken().toUpperCase();
+                        method = props;
                         url = parse.nextToken().toLowerCase();
                         System.out.println("URL:\t" + url);
                         splittedUrl = url.split("\\?");
                         fileName = splittedUrl[0];
                         System.out.println("FILE:\t" + fileName);
-                        if (splittedUrl.length > 1) {
-                            System.out.println("PARAMS:\t" + splittedUrl[1]);
-                            String[] keyValueParams = splittedUrl[1].split("&");
-                            for (String param : keyValueParams) {
-                                String[] splittedParam = param.split("=");
-                                params.put(splittedParam[0], splittedParam[1]);
-                                System.out.println("\t" + splittedParam[0] + ":\t" + splittedParam[1]);
+                        if (props.equals("GET")) {
+                            if (splittedUrl.length > 1) {
+                                System.out.println("PARAMS:\t" + splittedUrl[1]);
+                                String[] keyValueParams = splittedUrl[1].split("&");
+                                for (String param : keyValueParams) {
+                                    String[] splittedParam = param.split("=");
+                                    params.put(splittedParam[0], splittedParam[1]);
+                                    System.out.println("\t" + splittedParam[0] + ":\t" + splittedParam[1]);
+                                }
                             }
                         }
                         if(fileName.endsWith("/")) fileName = "index.html";
                         else fileName = fileName.substring(1, fileName.length());
                         contentType = getContentType(fileName);
                     }else{
-                        switch(method){
-                            case "Connection:":{
+                        switch(props){
+                            case "CONNECTION:":{
                                 connection = parse.nextToken();
+                                break;
+                            }
+                            case "CONTENT-TYPE:":{
+                                contentType = parse.nextToken();
+                                break;
+                            }
+                            case "CONTENT-LENGTH:":{
+                                contentLength = Integer.parseInt(parse.nextToken());
                                 break;
                             }
                         }
                     }
                     count++;
                 }else{
+                    System.out.println("termina headers " + contentLength + " " + connection);
+                    body = new char[contentLength];
+                    in.read(body, 0, contentLength);
+                    System.out.println(new String(body));
                     break;
                 }
             }
@@ -236,12 +262,12 @@ class Handler implements Runnable {
                 if(fileName.equals("index.html")){
                     File file = new File("web/" + fileName);
                     byte[] fileData = Files.readAllBytes(file.toPath());
-                    fileLength = fileData.length;
+                    contentLength = fileData.length;
                     out.println("HTTP/1.1 200 OK");
                     out.println("Server: MeshServer");
                     out.println("Date: " + new Date());
                     out.println("Content-type: " + contentType);
-                    out.println("Content-length: " + fileLength);
+                    out.println("Content-length: " + contentLength);
                     out.println();
                     bufferFileOut.write(fileData);
                 }else if(fileName.equals("request.json")){
@@ -315,12 +341,12 @@ class Handler implements Runnable {
                     File file = new File("web/" + fileName);
                     if(file.exists()){
                         byte[] fileData = Files.readAllBytes(file.toPath());
-                        fileLength = fileData.length;
+                        contentLength = fileData.length;
                         out.println("HTTP/1.1 200 OK");
                         out.println("Server: MeshServer");
                         out.println("Date: " + new Date());
                         out.println("Content-type: " + contentType);
-                        out.println("Content-length: " + fileLength);
+                        out.println("Content-length: " + contentLength);
                         out.println();
                         bufferFileOut.write(fileData);
                     }else{
@@ -332,8 +358,13 @@ class Handler implements Runnable {
                 }
             } catch (Exception e) {
                 System.out.println(e);
-            }
-            else try{
+            } else if (method.equals("POST")) {
+                out.println("HTTP/1.1 200 OK");
+                out.println("Content-Type: application/json");
+                out.println("Content-Length:" + contentLength);
+                out.println();
+                out.println(new String(body));
+            } else try {
                 out.println("HTTP/1.1 501 Not Implemented");
                 out.println("Server: MeshServer");
                 out.println("Date: " + new Date());
