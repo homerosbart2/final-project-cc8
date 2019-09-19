@@ -1,0 +1,229 @@
+body {
+  background: #ebebeb;
+  font-family: 'Oxygen', sans-serif;
+}
+
+.body-container {
+  position: fixed;
+  left: 0;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  margin-bottom: 120px;
+  overflow-y: auto;
+}
+
+.container {
+  margin-left: auto;
+  margin-right: auto;
+  margin-top: 4rem;
+  max-width: 1000px;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+}
+
+.info-container{
+  display: flex;
+  max-width: 700px;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+}
+.add-container {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  margin-left: auto;
+  margin-right: auto;
+  margin-top: 4rem;
+  max-width: 800px;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: -180px;
+  transition: 0.3s ease-in;
+}
+
+.add-container.shown {
+  margin-bottom: 0;
+}
+
+.add-container .col {
+  margin-bottom: 12px;
+}
+
+.add-container .add-bar {
+  display: flex;
+  width: calc(100vw - 40px);
+  height: 180px;
+  background: white;
+  box-shadow: 0 -5px 16px rgba(0,0,0,0.15);
+  border-top-left-radius: 1rem;
+  border-top-right-radius: 1rem;
+  justify-content: center;
+  align-items: center;
+}
+
+.add-container .add-bar .button {
+  height: 30px;
+}
+
+.col {
+  flex-basis: 0;
+  flex-grow: 1;
+  max-width: 100%;
+}
+
+.shadow--sm {
+  box-shadow: 0px 25px 15px -25px #97a3b8;
+}
+.shadow--sm:hover {
+  box-shadow: 0px 10px 10px -10px rgba(151, 163, 184, 0.5);
+}
+.shadow--md {
+  box-shadow: 0px 25px 25px -25px #97a3b8;
+}
+.shadow--md:hover {
+  box-shadow: 0px 10px 20px -10px rgba(151, 163, 184, 0.5);
+}
+.shadow--lg {
+  box-shadow: 0px 25px 35px -25px #97a3b8;
+}
+.shadow--lg:hover {
+  box-shadow: 0px 10px 30px -10px rgba(151, 163, 184, 0.5);
+}
+
+.card, .card1 {
+  background: #ffffff;
+  width: 220px;
+  border-radius: 1rem;
+  margin: 1rem auto;
+  transition: all .2s ease-in;
+  display: flex;
+  justify-content: center;
+  flex-direction: column;
+  text-align: center;
+  cursor: pointer;
+}
+
+.card {
+  height: 220px;
+}
+
+.card1 {
+  height: 100px;
+}
+
+.card--text {
+  font-size: 18px;
+  font-weight: thin;
+  color: #bdbdbd;
+  margin: 5px;
+}
+.card--size-state {
+  font-weight: 700;
+  color: #000;
+  font-size: 36px;
+}
+.card:hover {
+  -webkit-transform: scale(0.97);
+          transform: scale(0.97);
+}
+
+.card1:hover {
+  -webkit-transform: scale(1.03);
+          transform: scale(1.03);
+}
+
+p{
+  font-size: 50px;
+}
+
+.card--size-state1 {
+  font-weight: 700;
+  color: #000;
+  font-size: 27px;
+}
+
+.card1.button {
+  height: auto;
+  width: 150px;
+  box-shadow: 0 5px 8px rgba(0,0,0,0.15);
+  padding: 4px 0;
+}
+
+.card1.button .card--text {
+  font-weight: normal;
+  font-size: 16px;
+  border-radius: 20px;
+}
+
+input{
+  border-radius: 5px;
+  width: 200px;
+  height: 30px;
+
+}
+
+.ip-port-input {
+  display: flex;
+  align-items: center;
+  box-shadow: 0 -1px 15px #ee9ca7;
+  border-radius: 5px;
+  margin-right: 15px;
+}
+
+.ip-port-input .splitter {
+  transform: scale(0.5);
+  display: flex;
+  flex-direction: column;
+  font-size: 12px;
+}
+
+.ip-port-input .ip,
+.ip-port-input .port {
+  text-align: center;
+  background: transparent;
+  border: none;
+}
+
+.ip-port-input .port {
+  width: 50px;
+}
+
+.ip-port-input .ip {
+  width: 125px;
+}
+
+input:focus {
+  outline: 0;
+}
+
+.add-button{
+  background-color: #fff;
+  border: none;
+  color: white;
+  box-shadow: 0 -1px 8px #ee9ca7;
+  color: #000;
+  outline: none;
+  font-size: 30px;
+}
+
+.boton{
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+}
+
+.nombre{
+  outline: none;
+  margin-right: 15px;
+  border: none;
+  box-shadow: 0 -1px 10px #ee9ca7;
+  background: transparent;
+  text-align: center;
+}
