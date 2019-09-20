@@ -37,7 +37,7 @@ function platformContainer(nombre, ip, puerto){
 			<div class="col">
 				<div id="" class="card1 button shadow--md">
 					<div class="card--body">
-						<p class="card--text card--size-state1">Modificar</p>
+						<p class="card--text card--size-state1 margen">Modificar</p>
 					</div>
 				</div>
 			</div>
