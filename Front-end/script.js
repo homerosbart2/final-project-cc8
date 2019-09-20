@@ -1,17 +1,25 @@
 let isAddContainerShown = false;
+let platforms = {};
 
 const add = document.querySelector('#add');
 const refresh = document.querySelector('#refresh');
+const pagePlt = document.querySelector('#page-plt');
+const bodyContainer = document.querySelector('#body-container');
 const platformsContainer = document.querySelector("#platforms-container");
-let platforms = {};
-let colors = [
+const colors = [
 	"background: linear-gradient(to top right, #ddd6f3, #faaca8);",
 	"background: linear-gradient(to top left,  #fc5c7d, #6a82fb);",
 	"background: linear-gradient(to top right, #f7ff00, #db36a4);",
 	"background: linear-gradient(to top right,  #00b09b, #96c93d);"
 ];
 
+const showPagePlt = () => {
+	bodyContainer.classList.remove('shown');
+	pagePlt.classList.add('shown');
+}
+
 add.addEventListener('click', () => {
+	showPagePlt();
 	const addContainer = document.querySelector('#add-container');
 	if(isAddContainerShown) {
 		addContainer.classList.remove('shown');
@@ -61,12 +69,12 @@ function consultarPlataformas() {
 			var i = 0;
 			for(var nombre in respuestaPlataformas){
 				if(!platforms[nombre]){
-					platformsContainer.innerHTML += platformContainer(
+					platformsContainer.innerHTML = platformContainer(
 						nombre,
 						respuestaPlataformas[nombre].ip,
 						respuestaPlataformas[nombre].puerto,
 						colors[i]
-					);
+					) + platformsContainer.innerHTML;
 					i = (i+1)%4;
 					platforms[nombre] = respuestaPlataformas[nombre];
 				}

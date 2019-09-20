@@ -1,6 +1,7 @@
 body {
   background: #ebebeb;
   font-family: 'Oxygen', sans-serif;
+  margin: 0;
 }
 
 .body-container {
@@ -9,8 +10,14 @@ body {
   right: 0;
   top: 0;
   bottom: 0;
+  margin-right: -100%;
   margin-bottom: 120px;
   overflow-y: auto;
+  transition: 0.3s ease;
+}
+
+.body-container.shown {
+  margin-right: 0;
 }
 
 .container {
@@ -254,4 +261,18 @@ input:focus {
 }
 .card--text .card--size-state1 .margen {
   margin: 15px auto;
+}
+
+.page-plt{
+  width: 100vw;
+  height: 100vh;
+  display: flex;
+  background: pink;
+  position: fixed;
+  margin-left: -100%;
+  transition: 0.3s ease;
+}
+
+.page-plt.shown {
+  margin-left: 0;
 }
