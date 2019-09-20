@@ -6,6 +6,7 @@ const refresh = document.querySelector('#refresh');
 const pagePlt = document.querySelector('#page-plt');
 const bodyContainer = document.querySelector('#body-container');
 const platformsContainer = document.querySelector("#platforms-container");
+const agregarNuevo = document.querySelector('#agregarNuevo');
 const colors = [
 	"background: linear-gradient(to top right, #ddd6f3, #faaca8);",
 	"background: linear-gradient(to top left,  #fc5c7d, #6a82fb);",
@@ -85,6 +86,33 @@ function consultarPlataformas() {
 	http.open("GET", url, true);
 	http.send();
 }
+
+agregarNuevo.addEventListener('click', ()=>{
+	let nombre = document.querySelector('#nombrePlataforma');
+	let ip = document.querySelector('#ipPlataforma');
+	let puerto = document.querySelector('#puertoPlataforma');
+	if(nombre.value != "" && ip.value != "" && puerto.value != ""){
+		let http = new XMLHttpRequest();
+		let url = 'agregar.php';
+		let params = `nombre=${nombre.value}&ip=${ip.value}&puerto=${puerto.value}`;
+
+		http.onreadystatechange = () => {
+			/*var respuesta = JSON.parse(http.responseText);
+			if(respuesta.success){
+				console.log("Agregado correctamente");
+				consultarPlataformas();
+			}else{
+				console.log("Error");
+			}*/
+			console.log(http.responseText);
+		}
+
+		http.open("POST", url, true);
+		http.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
+		http.send(params);
+
+	}
+});
 
 document.onreadystatechange = () => {
 	if (document.readyState == "complete"){
