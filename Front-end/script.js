@@ -6,9 +6,9 @@ const platformsContainer = document.querySelector("#platforms-container");
 let platforms = {};
 let colors = [
 	"background: linear-gradient(to top right, #ddd6f3, #faaca8);",
-	"background: linear-gradient(to top right, #fc00ff, #00dbde);",
-	"background: linear-gradient(to top right, #4ac29a, #bdfff3);",
-	"background: linear-gradient(to top right, #ee9ca7, #ffdde1);"
+	"background: linear-gradient(to top left,  #fc5c7d, #6a82fb);",
+	"background: linear-gradient(to top right, #f7ff00, #db36a4);",
+	"background: linear-gradient(to top right,  #00b09b, #96c93d);"
 ];
 
 add.addEventListener('click', () => {

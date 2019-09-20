@@ -70,7 +70,7 @@ body {
   display: flex;
   width: calc(100vw - 40px);
   height: 160px;
-  background: #d9d9d9;
+  background: #fff;
   box-shadow: 0 -5px 16px rgba(0,0,0,0.15);
   border-top-left-radius: 1rem;
   border-top-right-radius: 1rem;
@@ -132,15 +132,15 @@ body {
 }
 
 .card--text {
-  font-size: 18px;
+  font-size: 14px;
   font-weight: thin;
-  color: #bdbdbd;
+  color: #fff;
   margin: 5px;
 }
 .card--size-state {
   font-weight: 700;
-  color: #000;
-  font-size: 36px;
+  color: #fff;
+  font-size: 32px;
 }
 .card:hover {
   -webkit-transform: scale(0.97);
@@ -177,8 +177,8 @@ p{
 
 input{
   border-radius: 5px;
-  width: 200px;
-  height: 30px;
+  width: 250px;
+  height: 40px;
 
 }
 
@@ -187,6 +187,8 @@ input{
   align-items: center;
   border-radius: 5px;
   margin-right: 15px;
+  border: 1px solid #ffafbd;
+  background: linear-gradient(to right, #ffebee, #ffeade);
 }
 
 .ip-port-input .splitter {
@@ -194,12 +196,13 @@ input{
   display: flex;
   flex-direction: column;
   font-size: 12px;
+
 }
 
 .ip-port-input .ip,
 .ip-port-input .port {
   text-align: center;
-  background: white;
+  background: transparent;
   border: none;
 }
 
@@ -216,25 +219,37 @@ input:focus {
 }
 
 .add-button{
-  background-color: #fff;
+  background-color: #000;
   border: none;
   color: white;
-  color: #000;
+  color: #fff;
   outline: none;
   font-size: 30px;
+
 }
 
 .boton{
-  width: 50px;
-  height: 50px;
+  width: 42px;
+  height: 42px;
   border-radius: 50%;
+  background: transparent;
+  border: 1px solid #ffafbd;
+  color: #ffafbd;
+  transition: 0.3s ease;
+  cursor: pointer;
+}
+
+.boton:hover {
+  background: linear-gradient(to right, #ffafbd, #ffc3a0);
+  color: white;
 }
 
 .nombre{
   outline: none;
   margin-right: 15px;
   border: none;
-  background: white;
+  border: 1px solid #ffafbd;
+  background: linear-gradient(to right, #ffebee, #ffeade);
   text-align: center;
 }
 .card--text .card--size-state1 .margen {
