@@ -16,6 +16,14 @@ body {
   transition: 0.3s ease;
 }
 
+.plt-container {
+  display: flex;
+  max-width: 1200px;
+  flex-wrap: wrap;
+  text-align: center;
+  justify-content: center;
+}
+
 .body-container.shown {
   margin-right: 0;
 }

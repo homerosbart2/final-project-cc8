@@ -2,6 +2,7 @@ let platforms = {};
 
 const refresh = document.querySelector('#refresh');
 const agregarNuevo = document.querySelector('#agregarNuevo');
+const platformsContainer = document.querySelector("#platforms-container");
 
 const colors = [
 	"background: linear-gradient(to top right, #ddd6f3, #faaca8);",
