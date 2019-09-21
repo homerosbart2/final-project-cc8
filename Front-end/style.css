@@ -10,7 +10,6 @@ body {
   right: 0;
   top: 0;
   bottom: 0;
-  margin-right: -100%;
   margin-bottom: 120px;
   overflow-y: auto;
   transition: 0.3s ease;

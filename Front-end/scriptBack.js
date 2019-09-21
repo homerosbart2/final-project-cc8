@@ -7,7 +7,7 @@ const platformsContainer = document.querySelector("#platforms-container");
 const colors = [
 	"background: linear-gradient(to top right, #ddd6f3, #faaca8);",
 	"background: linear-gradient(to top left,  #fc5c7d, #6a82fb);",
-	"background: linear-gradient(to top right, #f7ff00, #db36a4);",
+	"background: linear-gradient(to top right, #ff5f6d, #ffc371);",
 	"background: linear-gradient(to top right,  #00b09b, #96c93d);"
 ];
 
