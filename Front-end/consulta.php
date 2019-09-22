@@ -13,7 +13,7 @@ $ret = $db->query($sql);
 $plataformas = array();
 
 while($row = $ret->fetchArray(SQLITE3_ASSOC)){
-  $plataformas[$row['nombre']] = array('ip' => $row['ip'], 'puerto' => $row['puerto']);
+  $plataformas[$row['nombre']] = array('ip' => $row['ip'], 'puerto' => $row['puerto'], 'id' => $row['id']);
 }
 
 echo json_encode($plataformas);

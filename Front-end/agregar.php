@@ -21,13 +21,6 @@ if (isset($_POST['id'])) {
     $sql = "UPDATE plataformas SET nombre = '{$nombre}', ip = '{$ip}', puerto = {$puerto} WHERE id = {$id}";
 }
 
-
-echo $nombre;
-echo $ip;
-echo $puerto;
-echo $id;
-echo $sql;
-
 $ret = $db->exec($sql);
 
 $respuesta = array(
