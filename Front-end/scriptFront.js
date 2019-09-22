@@ -29,6 +29,9 @@ back.addEventListener('click', () => {
 
 add.addEventListener('click', () => {
 	modifyId = null;
+	document.querySelector('#nombrePlataforma').value = "";
+	document.querySelector('#ipPlataforma').value = "";
+	document.querySelector('#puertoPlataforma').value = "80";
 	if(isAddContainerShown) {
 		addContainer.classList.remove('shown');
 		isAddContainerShown = false;
