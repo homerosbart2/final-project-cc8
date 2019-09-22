@@ -6,7 +6,6 @@ var modifyId = null;
 const refresh = document.querySelector('#refresh');
 const agregarNuevo = document.querySelector('#agregarNuevo');
 const platformsContainer = document.querySelector("#platforms-container");
-const update = document.querySelector('#update')
 
 const colors = [
 	"background: linear-gradient(to top right, #ddd6f3, #faaca8);",
@@ -67,9 +66,7 @@ function consultarPlataformas() {
 	http.send();
 }
 
-update.addEventListener('click', () => {
 
-});
 
 agregarNuevo.addEventListener('click', ()=>{
 	let nombre = document.querySelector('#nombrePlataforma');
