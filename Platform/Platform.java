@@ -3,10 +3,21 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.io.*;
 import java.net.*;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Date;
+import java.util.Enumeration;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
 import java.util.StringTokenizer;
+import java.util.TimeZone;
 import java.text.SimpleDateFormat;
+import java.time.Instant;
+import java.time.ZoneOffset;
+import java.time.ZonedDateTime;
 import java.text.DateFormat;
 import java.io.File;
 import java.io.FileInputStream;
@@ -22,6 +33,8 @@ import java.util.Properties;
 import org.omg.CORBA.UNKNOWN;
 import org.sqlite.SQLiteConnection;
 
+import com.google.gson.Gson;
+
 /**
  * Platform
  */
@@ -30,8 +43,58 @@ public class Platform {
 
     private static String db = "default.db";
     private static Connection sqliteConnection;
+    private static Statement statement;
+    public static String id = "1234567890";
+    public static String ip = "noip";
+    public static int port = 80;
+    public static HashSet<String> hardwareIds = new HashSet<String>();
+
+    private static void setIpAddress() {
+        try {
+            Enumeration<NetworkInterface> interfaces = NetworkInterface.getNetworkInterfaces();
+            boolean modified = false;
+            while (interfaces.hasMoreElements()) {
+                NetworkInterface networkInterface = interfaces.nextElement();
+                if (!networkInterface.isUp())
+                    continue;
+                Enumeration<InetAddress> addresses = networkInterface.getInetAddresses();
+                while(addresses.hasMoreElements()) {
+                    InetAddress addr = addresses.nextElement();
+                    if (networkInterface.getDisplayName().equals("Intel(R) Dual Band Wireless-AC 8265")) {
+                        if (!modified) {
+                            ip = addr.getHostAddress();
+                            modified = true;
+                        }
+                    }
+                }
+            }
+        } catch (SocketException e) {
+            System.out.println(e);
+        }
+    }
+
+    public static ResultSet executeQuery(String query) throws SQLException {
+        if (Platform.sqliteConnection == null || Platform.sqliteConnection.isClosed() || Platform.statement == null) {
+            Platform.sqliteConnection = Platform.connect();
+            Platform.statement = sqliteConnection.createStatement();
+            statement.setQueryTimeout(5);
+        }
+        String command = query.trim().split(" ")[0];
+        if (command.equals("CREATE")) {
+            statement.execute(query);
+        } else if (command.equals("SELECT")) {
+            return statement.executeQuery(query);
+        } else if (command.equals("UPDATE") || command.equals("INSERT")) {
+            statement.executeUpdate(query);
+        } else {
+            throw new SQLException(command + " is not supported.");
+        }
+        return null;
+    }
 
     public static void main(String[] args) {
+        setIpAddress();
+
         Platform platform = new Platform();
         platform.initializeServer();
     }
@@ -48,7 +111,7 @@ public class Platform {
 
     private void initializeServer(){
         int nThreads = 20;
-        int port = 80;
+        Platform.port = 80;
 
         try {
             Properties defaultProps = new Properties();
@@ -67,14 +130,17 @@ public class Platform {
 
             if(defaultProps.containsKey("port"))
                 try {
-                    port = Integer.valueOf(String.valueOf(defaultProps.get("port")));
+                    Platform.port = Integer.valueOf(String.valueOf(defaultProps.get("port")));
                 } catch (Exception e) {
-                    System.out.println("ALERTA\tLa configuración 'port' no es correcta. Se utilizará el default: " + port + ".");
+                    System.out.println("ALERTA\tLa configuración 'port' no es correcta. Se utilizará el default: " + Platform.port + ".");
                 }
-            else System.out.println("ALERTA:\tLa configuracion 'port' no se ha encontrado en server.conf. Se utilizara el default: " + port + ".");
+            else System.out.println("ALERTA:\tLa configuracion 'port' no se ha encontrado en server.conf. Se utilizara el default: " + Platform.port + ".");
 
             if (defaultProps.containsKey("db")) db = defaultProps.getProperty("db");
             else System.out.println("ALERTA:\tLa configuracion 'db' no se ha encontrado en server.conf. Se utilizara el default: " + db + ".");
+
+            if (defaultProps.containsKey("id")) id = defaultProps.getProperty("id");
+            else System.out.println("ALERTA:\tLa configuracion 'id' no se ha encontrado en server.conf. Se utilizara el default: " + id + ".");
 
         } catch (FileNotFoundException e) {
             System.out.println("ALERTA:\tNo existe el archivo server.conf. Si desea configurar el servidor, agrueguelo a la carpeta.");
@@ -82,32 +148,37 @@ public class Platform {
             System.out.println(e);
         }
 
-        System.out.println("INFO:\t\tIniciando el servidor con " + nThreads + " threads en el puerto " + port + ". Utilizando la base de datos " + Platform.db + ". La configuracion puede ser cambiada en server.conf.");
+        System.out.println("INFO:\t\tIniciando el servidor con " + nThreads + " threads en el puerto " + Platform.port + ". Utilizando la base de datos " + Platform.db + ". La configuracion puede ser cambiada en server.conf.");
 
         try {
-            Platform.sqliteConnection = connect();
-            Statement statement = sqliteConnection.createStatement();
-            statement.setQueryTimeout(5);
-            String query = "CREATE TABLE IF NOT EXISTS requests (id int primary key, date datetime, socket varchar, temperature double, motor_speed int, m1 int, m2 int);";
-            statement.execute(query);
-            query = "CREATE TABLE IF NOT EXISTS hardware (motor_speed int, m1 int, m2 int);";
-            statement.execute(query);
+            String query = "CREATE TABLE IF NOT EXISTS requests (correlative int primary key, date datetime, socket varchar, id varchar, type boolean, frequency int, sensor int, status boolean, text varchar);";
+            Platform.executeQuery(query);
+            query = "CREATE TABLE IF NOT EXISTS hardware(id varchar primary key, tag varchar, type boolean, status boolean, frequency int, text varchar);";
+            Platform.executeQuery(query);
+
+            query = "SELECT id FROM hardware;";
+            ResultSet rs = Platform.executeQuery(query);
+            while (rs.next()) {
+                Platform.hardwareIds.add(rs.getString("id"));
+            }
             
-            query = "SELECT COUNT(id) as count, MAX(id) as max FROM requests;";
-            ResultSet rs = statement.executeQuery(query);
+            query = "SELECT COUNT(id) as count, MAX(correlative) as max FROM requests;";
+            rs = Platform.executeQuery(query);
             while (rs.next()) {
                 int count = rs.getInt("count");
                 int max = rs.getInt("max");
                 if (count > 0 && max > Platform.correlative.get()) Platform.correlative.set(max);
             }
             rs.close();
+            System.out.println(query);
 
             System.out.println("INFO:\tSiguiente correlativo: " + (Platform.correlative.get() + 1));
-            NetworkService networkService = new NetworkService(port, nThreads, Platform.sqliteConnection);
+            System.out.println("\tDispositivos asociados a esta platoforma -> " + Platform.hardwareIds);
+            NetworkService networkService = new NetworkService(nThreads, Platform.sqliteConnection);
     
             new Thread(networkService).start();
         } catch (BindException e) {
-            System.out.println("ERROR:\tEl puerto " + port + " esta ocupado.");
+            System.out.println("ERROR:\tEl puerto " + Platform.port + " esta ocupado.");
         } catch (Exception e) {
             System.out.println(e);
         }
@@ -119,9 +190,9 @@ class NetworkService implements Runnable {
     private final ExecutorService pool;
     private final Connection sqliteConnection;
 
-    public NetworkService(int port, int nThreads, Connection sqliteConnection)
+    public NetworkService(int nThreads, Connection sqliteConnection)
         throws IOException {
-        this.serverSocket = new ServerSocket(port);
+        this.serverSocket = new ServerSocket(Platform.port);
         this.pool = Executors.newFixedThreadPool(nThreads);
         this.sqliteConnection = sqliteConnection;
     }
@@ -129,7 +200,7 @@ class NetworkService implements Runnable {
     public void run() {
         try {
             for (;;) {
-                pool.execute(new Handler(this.serverSocket.accept(), this.sqliteConnection));
+                pool.execute(new Handler(this.serverSocket.accept()));
             }
         } catch (IOException ex) {
             pool.shutdown();
@@ -139,14 +210,12 @@ class NetworkService implements Runnable {
 
 class Handler implements Runnable {
     private final Socket s;
-    static DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-    private Connection sqliteConnection;
-    private Statement statement;
+    private static SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", Locale.US);
+    private static Gson gson = new Gson();
     private static int speed = 255;
 
-    Handler(Socket socket, Connection sqliteConnection) { 
+    Handler(Socket socket) { 
         this.s = socket;
-        this.sqliteConnection = sqliteConnection;
     }
 
     private String getContentType(String fileRequested) {
@@ -196,9 +265,6 @@ class Handler implements Runnable {
                 try{
                     input = in.readLine();
                     if (input.startsWith("GET") || input.startsWith("POST")) System.out.println(input);
-                    else {
-                        System.out.println(input);
-                    }
                 }catch(Exception e){
                     System.out.println("catch");
                 } 
@@ -229,7 +295,7 @@ class Handler implements Runnable {
                                 }
                             }
                         }
-                        if(fileName.endsWith("/")) fileName = "index.html";
+                        if(fileName.endsWith("/") && !method.equals("POST")) fileName = "index.html";
                         else fileName = fileName.substring(1, fileName.length());
                         contentType = getContentType(fileName);
                     }else{
@@ -250,7 +316,6 @@ class Handler implements Runnable {
                     }
                     count++;
                 }else{
-                    System.out.println("termina headers " + contentLength + " " + connection);
                     body = new char[contentLength];
                     in.read(body, 0, contentLength);
                     System.out.println(new String(body));
@@ -271,52 +336,52 @@ class Handler implements Runnable {
                     out.println();
                     bufferFileOut.write(fileData);
                 }else if(fileName.equals("request.json")){
-                    String temperature =    params.containsKey("temperature") ? params.get("temperature") : "";
-                    String motorSpeed =     params.containsKey("motor_speed") ? params.get("motor_speed") : "";
-                    String m1 =             params.containsKey("m1") ? params.get("m1") : "";
-                    String m2 =             params.containsKey("m2") ? params.get("m2") : "";
                     String date =           dateFormat.format(new Date());
                     String socket =         this.s.getRemoteSocketAddress().toString();
+                    socket = socket.substring(1, socket.length());
+                    String id =             params.containsKey("id") ? params.get("id") : "";
+                    String type =             params.containsKey("type") ? params.get("type") : "false";
+                    String frequency =             params.containsKey("frequency") ? params.get("frequency") : "-1";
+                    String sensor =             params.containsKey("sensor") ? params.get("sensor") : "-1";
+                    String status =             params.containsKey("status") ? params.get("status") : "false";
+                    String text =             params.containsKey("text") ? params.get("text") : "";
 
-                    String query = "INSERT INTO requests (id,date,socket";
-                    query += !temperature.isEmpty() ? ",temperature" : "";
-                    query += !motorSpeed.isEmpty() ? ",motor_speed" : "";
-                    query += !m1.isEmpty() ? ",m1" : "";
-                    query += !m2.isEmpty() ? ",m2" : "";
-                    query += ") VALUES ("
+                    if (!Platform.hardwareIds.contains(id)) {
+                        Platform.hardwareIds.add(id);
+                        String query = "INSERT INTO hardware VALUES ('"
+                            + id + "','',"
+                            + type + ","
+                            + status + ","
+                            + frequency + ",'"
+                            + text + "');";
+
+                        Platform.executeQuery(query);
+                    }
+
+                    String query = "INSERT INTO requests VALUES ("
                         + (Platform.correlative.getAndIncrement() + 1) + ",'"
                         + date + "','"
-                        + socket + "'";
-                    query += !temperature.isEmpty() ? "," + temperature : "";
-                    query += !motorSpeed.isEmpty() ? "," + motorSpeed : "";
-                    query += !m1.isEmpty() ? "," + m1 : "";
-                    query += !m2.isEmpty() ? "," + m2 : "";
-                    query += ");";
+                        + socket + "','"
+                        + id + "',"
+                        + type + ","
+                        + frequency + ","
+                        + sensor + ","
+                        + status + ",'"
+                        + text + "');";
 
                     System.out.println("QUERY:\t" + query);
 
-                    try {
-                        if (this.sqliteConnection.isClosed() || statement == null) {
-                            this.sqliteConnection = Platform.connect();
-                            this.statement = sqliteConnection.createStatement();
-                            statement.setQueryTimeout(5);
-                        }
-                        statement.executeUpdate(query);
-                    } catch (SQLException e) {
-                        System.out.println(e);
-                    }
+                    Platform.executeQuery(query);
 
                     int m1Int = 0, m2Int = 0;
 
-                    query = "SELECT * FROM hardware;";
-                    ResultSet rs = statement.executeQuery(query);
+                    query = "SELECT * FROM hardware WHERE id = '" + id + "';";
+                    ResultSet rs = Platform.executeQuery(query);
                     while (rs.next()) {
-                        speed = rs.getInt("motor_speed");
-                        m1Int = rs.getInt("m1");
-                        m2Int = rs.getInt("m2");
-                        System.out.println("MTR_SPD:\t" + speed);
-                        System.out.println("MATRIX1:\t" + m1Int);
-                        System.out.println("MATRIX2:\t" + m2Int);
+                        status = rs.getBoolean("status") + "";
+                        frequency = rs.getInt("frequency") + "";
+                        text = rs.getString("text");
+                        System.out.println("STATUS:\t" + status);
                     }
                     rs.close();
                     
@@ -324,10 +389,9 @@ class Handler implements Runnable {
                     // speed = speed == 255 ? 125 : speed == 125 ? 0 : 255; 
                     
                     String response = "{" + 
-                        "\"motor_speed\": " + speed + "," + 
-                        "\"success\": true," + 
-                        "\"m1\": " + m1Int + "," +
-                        "\"m2\": " + m2Int +
+                        "\"status\": " + status +
+                        ",\"frequency\": " + frequency +
+                        ",\"text\": \"" + text + "\"" +
                     "}";
 
                     out.println("HTTP/1.1 200 OK");
@@ -337,7 +401,7 @@ class Handler implements Runnable {
                     out.println("Content-length: " + response.length());
                     out.println();
                     out.println(response);
-                }else{
+                } else {
                     File file = new File("web/" + fileName);
                     if(file.exists()){
                         byte[] fileData = Files.readAllBytes(file.toPath());
@@ -356,14 +420,73 @@ class Handler implements Runnable {
                         out.println();
                     }
                 }
-            } catch (Exception e) {
+            } catch (SQLException e) {
                 System.out.println(e);
-            } else if (method.equals("POST")) {
+            } else if (method.equals("POST")) try {
+                FrontendRequest frontendRequest = gson.fromJson(new String(body), FrontendRequest.class);
+                Date now = new Date();
+                String response = "{\"id\":\"" + Platform.id + "\", \"url\":\"" + Platform.ip + "\", \"date\": \"" + dateFormat.format(now) + "\"";
+                if (fileName.equals("search/")) {
+                    response += ", \"search\": {"; 
+
+                    String query = "SELECT * FROM hardware WHERE id = '" + frontendRequest.search.id_hardware + "';";
+                    ResultSet rs = Platform.executeQuery(query);
+                    while (rs.next()) {
+                        response += "\"id_hardware\": \"" + rs.getString("id") + "\", \"type\": \"";
+                        response += rs.getBoolean("type") ? "input" : "output";
+                        response += "\"";
+                    }
+                    response += "}, \"data\": {";
+                    query = "SELECT * FROM requests WHERE id = '" + frontendRequest.search.id_hardware + "' AND date > '" + frontendRequest.search.start_date + "' AND date < '" + frontendRequest.search.finish_date + "';";
+                    rs = Platform.executeQuery(query);
+                    while (rs.next()) {
+                        response += "\"" + rs.getString("date") + "\": {\"sensor\": " + rs.getString("sensor") + ", \"status\": " + rs.getBoolean("status") + ", \"freq\": " + rs.getInt("frequency") + ", \"text\": \"" + rs.getString("text");
+                        response += "\"}, ";
+                    }
+                    response = response.substring(0, response.length() - 2);
+                    response += "}";
+                    rs.close();
+                } else if (fileName.equals("info/")) {
+                    response += ", \"hardware\": {"; 
+                    String query = "SELECT * FROM hardware;";
+                    ResultSet rs = Platform.executeQuery(query);
+                    while (rs.next()) {
+                        response += "\"" + rs.getString("id") + "\": {\"tag\": \"" + rs.getString("tag") + "\", \"type\": \"";
+                        response += rs.getBoolean("type") ? "input" : "output";
+                        response += "\"}, ";
+                    }
+                    rs.close();
+                    response = response.substring(0, response.length() - 2);
+                    response += "}";
+                }  else if (fileName.equals("change/")) {
+                    try {
+                        Hardware[] hardwareArray = frontendRequest.decodeHardware();
+                        for (Hardware hardware : hardwareArray) {
+                            String query = "UPDATE hardware SET ";
+                            query += hardware.params.tag != null ? "tag = '" + hardware.params.tag + "', " : "";
+                            query += hardware.params.text != null ? "text = '" + hardware.params.text + "', " : "";
+                            query += hardware.params.freq != 0 ? "frequency = " + hardware.params.freq + ", " : "";
+                            query += hardware.params.status != null ? "status = " + hardware.params.status + ", " : "";
+                            query = query.substring(0, query.length() - 2);
+                            query += " WHERE id = '" + hardware.id + "';";
+                            System.out.println(query);
+                            Platform.executeQuery(query);
+                        }
+                        response += ", \"status\": \"OK\""; 
+                    } catch (SQLException e) {
+                        System.out.println(e);
+                        response += ", \"status\": \"ERROR\""; 
+                    }
+                   
+                }
+                response += "}";
                 out.println("HTTP/1.1 200 OK");
                 out.println("Content-Type: application/json");
-                out.println("Content-Length:" + contentLength);
+                out.println("Content-Length:" + response.length());
                 out.println();
-                out.println(new String(body));
+                out.println(response);
+            } catch (SQLException e) {
+                System.out.println(e);
             } else try {
                 out.println("HTTP/1.1 501 Not Implemented");
                 out.println("Server: MeshServer");
