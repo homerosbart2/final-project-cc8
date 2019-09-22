@@ -28,6 +28,7 @@ back.addEventListener('click', () => {
 });
 
 add.addEventListener('click', () => {
+	modifyId = null;
 	if(isAddContainerShown) {
 		addContainer.classList.remove('shown');
 		isAddContainerShown = false;
@@ -41,4 +42,17 @@ add.addEventListener('click', () => {
 
 go.addEventListener('click', () => {
 	showPagePlt();
+});
+
+document.addEventListener('DOMContentLoaded', function(event) {
+	document.querySelector('#flip-turn-back').style.visibility ='visible';
+	document.querySelector('#flip-turn-front').style.visibility = 'visible';
+	
+	document.querySelector('#flip-turn-back').onclick = function(){
+		document.querySelector('#flip-card').classList.toggle('do-flip');
+	};
+
+	document.querySelector('#flip-turn-front').onclick = function(){
+		document.querySelector('#flip-card').classList.toggle('do-flip');
+	};
 });
