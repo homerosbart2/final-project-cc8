@@ -5,6 +5,7 @@
   <title>SG</title>
    
   <link rel="stylesheet" href="./style.css">
+  <link rel="stylesheet" href="./modal.css">
 </head>
 <body>
   <div id="body-container" class="body-container">
@@ -68,6 +69,7 @@
         <div class="flip-card-front">
           <div class="card--body">
             <p class="card--text card--size-state">Name</p>
+            <p class="card--text ">input/output</p>
           </div>
           <button id="flip-turn-back">Modificar</button>
         </div>
@@ -93,13 +95,22 @@
       </div>
     </div>
     <div class="col">
-      <button class="btn-control">Consultar</button>
+      <button class="btn-control" id="open-modal">Consultar</button>
     </div>
   </div>
 </div>
+  <span id="modal-1" class="modal-overlay">
+    <span class="modal-container">
+        <span class="close-container">
+          X
+        </span>
+        <h1>Shinshé</h1>
+    </span>
+  </span>
 </body>
 
 <script type="text/javascript" src="./scriptFront.js"></script>
 <script type="text/javascript" src="./scriptBack.js"></script>
+<script type="text/javascript" src="./modal.js"></script>
 </html>
 

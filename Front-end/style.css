@@ -394,11 +394,11 @@ input:focus {
   flex-direction: column;
   justify-content: center;
   text-align: center;
-  background: linear-gradient(to top right, #ddd6f3, #faaca8);
+  background: linear-gradient(to top right, #ff5f6d, #ffc371);
   border-radius: 12px;
 }
 #flip-card .flip-card-back {
-  background: linear-gradient(to top left,  #ddd6f3, #faaca8);
+  background: linear-gradient(to top left,  #ff5f6d, #ffc371);
   border-radius: 12px;
   -o-transform: rotateY(180deg);
   -webkit-transform: rotateY(180deg);
@@ -420,7 +420,7 @@ input:focus {
   align-items: center;
   height: 30px;
   width: 75px;
-  background: #95a5a6;
+  background: #d6d6d6;
   border-radius: 15px; 
   position: relative;
   transition: 0.3s ease;
@@ -448,7 +448,7 @@ input:focus {
   height: 14px;
   width: 14px;
   border-radius: 12px;
-  background: #6c797a;
+  background: #000;
   left: 8px;
   transition: 0.3s ease;
 }
