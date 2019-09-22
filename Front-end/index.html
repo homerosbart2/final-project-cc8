@@ -7,94 +7,30 @@
   <link rel="stylesheet" href="./style.css">
 </head>
 <body>
-  <div class="body-container">
-<div>
- <p align="center">Plataformas disponibles</p>
+  <div id="body-container" class="body-container">
+    <div>
+      <div class="col">
+        <div id="refresh" class="card1 button shadow--md">
+          <div class="card--body">
+            <p class="card--text card--size-state1">Refrescar</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="col">
+          <div id="go" class="card1 button shadow--md">
+            <div class="card--body">
+              <p class="card--text card--size-state1">Ir</p>
+            </div>
+          </div>
+        </div>
+    </div>
+    <div id="platforms-container" class="container">
+
+  </div>
 </div>
-<div class="container">
-  
-  <div class="plt-container">
-    <div class="col">
-      <div class="card shadow--sm">
-        <div class="card--body">
-          <p class="card--text card--size-state">SG⭐</p>
-          <p class="card--text">Plt1</p>
-        </div>
-      </div>
-    </div>
 
-  <div class="col">
-    <div id="" class="card1 button shadow--md">
-      <div class="card--body">
-        <p class="card--text card--size-state1">Modificar</p>
-      </div>
-    </div>
-  </div>
-  </div>
-
-  <div class="plt-container">
-    <div class="col">
-      <div class="card shadow--sm">
-        <div class="card--body">
-          <p class="card--text card--size-state">SG⭐</p>
-          <p class="card--text">Plt1</p>
-        </div>
-      </div>
-    </div>
-
-  <div class="col">
-    <div id="" class="card1 button shadow--md">
-      <div class="card--body">
-        <p class="card--text card--size-state1">Modificar</p>
-      </div>
-    </div>
-  </div>
-  </div>
-
-  <div class="plt-container">
-    <div class="col">
-      <div class="card shadow--sm">
-        <div class="card--body">
-          <p class="card--text card--size-state">SG⭐</p>
-          <p class="card--text">Plt1</p>
-        </div>
-      </div>
-    </div>
-
-  <div class="col">
-    <div id="" class="card1 button shadow--md">
-      <div class="card--body">
-        <p class="card--text card--size-state1">Modificar</p>
-      </div>
-    </div>
-  </div>
-  </div>
- 
-  <div class="plt-container">
-    <div class="col">
-      <div class="card shadow--sm">
-        <div class="card--body">
-          <p class="card--text card--size-state">SG⭐</p>
-          <p class="card--text">Plt1</p>
-        </div>
-      </div>
-    </div>
-
-  <div class="col">
-    <div id="" class="card1 button shadow--md">
-      <div class="card--body">
-        <p class="card--text card--size-state1">Modificar</p>
-      </div>
-    </div>
-  </div>
-  </div>
-
-
-
-</div>
-  </div>
-
-<div id="add-container" class="add-container shown">
+<div id="add-container" class="add-container">
   <div class="col">
     <div id="add" class="card1 button shadow--md">
       <div class="card--body">
@@ -104,21 +40,34 @@
   </div>
   <div class="add-bar">
     <div class="info-container">
-      <input type="text" name="" class="nombre" placeholder="Nombre">
+      <input type="text" id="nombrePlataforma" name="" class="nombre" placeholder="Nombre">
       <div class="ip-port-input">
-        <input class="ip" type="text" name="" placeholder="0.0.0.0">
+        <input class="ip" type="text" id="ipPlataforma" name="" placeholder="0.0.0.0">
         <span class="splitter">
           <span class="dot">●</span>
           <span class="dot">●</span>
         </span>
-        <input class="port" type="text" name="" placeholder="80">
+        <input class="port" type="text" id="puertoPlataforma" name="" placeholder="80">
       </div>
-      <button class="add-button boton">+</button>
+      <button class="add-button boton" id="agregarNuevo">+</button>
     </div>
+  </div>
+</div>
+<div id="page-plt" class="page-plt">
+  <div class="plt-container">
+    <div class="col">
+      <div id="back" class="card1 button shadow--md">
+        <div class="card--body">
+          <p class="card--text card--size-state1">Regresar</p>
+        </div>
+      </div>
+    </div>
+
   </div>
 </div>
 </body>
 
-<script type="text/javascript" src="./script.js"></script>
+<script type="text/javascript" src="./scriptFront.js"></script>
+<script type="text/javascript" src="./scriptBack.js"></script>
 </html>
 
