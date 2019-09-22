@@ -18,7 +18,7 @@ refresh.addEventListener('click', ()=>{
 	consultarPlataformas();
 });
 
-function platformContainer(nombre, ip, puerto, color){
+function platformContainer(nombre, ip, puerto, color, id){
 	return `
 		<div class="plt-container">
 			<div class="col">
@@ -31,7 +31,7 @@ function platformContainer(nombre, ip, puerto, color){
 			</div>
 			<div class="col">
 				<div id="" class="card1 button shadow--md">
-					<div class="card--body">
+					<div class="card--body" onclick="modificar(${id})">
 						<p class="card--text card--size-state1 margen">Modificar</p>
 					</div>
 				</div>
@@ -47,16 +47,17 @@ function consultarPlataformas() {
 	http.onreadystatechange = () => {
 		if(http.readyState == XMLHttpRequest.DONE){
 			var respuestaPlataformas = JSON.parse(http.responseText);
-			for(var nombre in respuestaPlataformas){
-				if(!platforms[nombre]){
+			for(var platId in respuestaPlataformas){
+				if(!platforms[platId]){
 					platformsContainer.innerHTML = platformContainer(
-						nombre,
-						respuestaPlataformas[nombre].ip,
-						respuestaPlataformas[nombre].puerto,
-						colors[colorCount]
+						respuestaPlataformas[platId].nombre,
+						respuestaPlataformas[platId].ip,
+						respuestaPlataformas[platId].puerto,
+						colors[colorCount],
+						platId
 					) + platformsContainer.innerHTML;
 					colorCount = (colorCount+1)%4;
-					platforms[nombre] = respuestaPlataformas[nombre];
+					platforms[platId] = respuestaPlataformas[platId];
 				}
 			}
 		}
@@ -66,7 +67,15 @@ function consultarPlataformas() {
 	http.send();
 }
 
-
+function modificar(id) {
+	modifyId = id;
+	document.querySelector('#nombrePlataforma').value = platforms[id].nombre;
+	document.querySelector('#ipPlataforma').value = platforms[id].ip;
+	document.querySelector('#puertoPlataforma').value = platforms[id].puerto;
+	addContainer.classList.add('shown');
+	isAddContainerShown = true;
+	add.querySelector("div p").innerHTML = "Cancelar";
+}
 
 agregarNuevo.addEventListener('click', ()=>{
 	let nombre = document.querySelector('#nombrePlataforma');
@@ -77,6 +86,8 @@ agregarNuevo.addEventListener('click', ()=>{
 		let url = 'agregar.php';
 		let params = `nombre=${nombre.value}&ip=${ip.value}&puerto=${puerto.value}`;
 
+		if(modifyId) params += `&id=${modifyId}`;
+
 		http.onreadystatechange = () => {
 			if(http.readyState === XMLHttpRequest.DONE) {
 				try {
@@ -86,6 +97,14 @@ agregarNuevo.addEventListener('click', ()=>{
 						nombre.value = "";
 						ip.value = "";
 						puerto.value = "80";
+						if(modifyId) {
+							modifyId = null;
+							platforms = {};
+							platformsContainer.innerHTML = "";
+							addContainer.classList.remove('shown');
+							isAddContainerShown = false;
+							add.querySelector("div p").innerHTML = "Agregar";
+						}
 						consultarPlataformas();
 					}else{
 						console.log("Error");
