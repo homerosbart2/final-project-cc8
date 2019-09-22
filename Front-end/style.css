@@ -42,10 +42,12 @@ body {
   margin-right: auto;
   margin-left: auto;
   display: flex;
-  max-width: 1000px;
-  flex-wrap: flex;
+  max-width: 500px;
+  max-height: 500px;
+  flex-wrap: wrap;
   align-items: center;
   justify-content: center;
+  flex-direction: column; 
 }
 
 .plt-container{
@@ -285,8 +287,13 @@ input:focus {
   width: 80%;
   height: 28px;
   border: 1px solid #ffafbd;
-  background: linear-gradient(to right, #ffebee, #ffeade);
+  background: #ffebee;
   text-align: center;
+}
+
+.text-freq:hover {
+  -webkit-transform: scale(0.97);
+          transform: scale(0.97);
 }
 .card--text .card--size-state1 .margen {
   margin: 15px auto;
@@ -338,6 +345,7 @@ input:focus {
 }
 
 #flip-turn-back, #flip-turn-front {
+  outline: none;
   position: absolute;
   bottom: 0px;
   right: 0px;
@@ -355,6 +363,16 @@ input:focus {
   opacity: 0.5;
   border-bottom-left-radius: 8px; 
   border-bottom-right-radius: 8px;
+}
+
+#flip-turn-front:hover{
+  background: white;
+  color: black;
+}
+
+#flip-turn-back:hover{
+  background: white;
+  color: black;
 }
 
 #flip-card .flip-card-front, #flip-card .flip-card-back{
@@ -377,15 +395,102 @@ input:focus {
   justify-content: center;
   text-align: center;
   background: linear-gradient(to top right, #ddd6f3, #faaca8);
-  border-radius: 8px;
+  border-radius: 12px;
 }
 #flip-card .flip-card-back {
   background: linear-gradient(to top left,  #ddd6f3, #faaca8);
-  border-radius: 8px;
+  border-radius: 12px;
   -o-transform: rotateY(180deg);
   -webkit-transform: rotateY(180deg);
   -ms-transform: rotateY(180deg);
   transform: rotateY(180deg);
 }
 
+.switch-container input {
+  display: none;
+}
 
+.switch-container input:checked + label {
+  background: linear-gradient(to right, #ec008c, #fc6767);
+}
+
+.switch-container label {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 30px;
+  width: 75px;
+  background: #95a5a6;
+  border-radius: 15px; 
+  position: relative;
+  transition: 0.3s ease;
+  cursor: pointer;
+  font-weight: bold;
+  color: black;
+  margin-top: 7px;
+}
+
+.switch-container label::after {
+  content: "OFF";
+  position: relative;
+  right: -5px;
+}
+
+.switch-container input:checked + label::after {
+  content: "ON";
+  position: relative;
+  left: -2px;
+}
+
+.switch-container label .indicator {
+  display: flex;
+  position: absolute;
+  height: 14px;
+  width: 14px;
+  border-radius: 12px;
+  background: #6c797a;
+  left: 8px;
+  transition: 0.3s ease;
+}
+
+.switch-container input:checked + label .indicator {
+  left: calc(100% - 20px);
+  background: #000;
+}
+
+.btn-modify-hardw{
+  border-radius: 50%;
+  border: none;
+  width: 40px;
+  height: 40px;
+  align-items: center;
+  background: white;
+  margin-top: 12px;
+  font-size: 24px;
+  cursor: pointer;
+  outline: none;
+}
+
+.btn-modify-hardw:hover{
+  background: linear-gradient(to right, #ffafbd, #ffc3a0);
+  color: white;
+}
+
+.btn-control {
+  border: none;
+  outline: none;
+  border-radius: 12px;
+  width: 120px;
+  height: 35px;
+  cursor: pointer;
+  margin-top: 8px;
+  font-size: 15px;
+  background: white;
+  box-shadow: 0 5px 8px rgba(0,0,0,0.15);
+  margin-top: 70px;
+}
+
+.btn-control:hover {
+  -webkit-transform: scale(0.97);
+          transform: scale(0.97);
+}
