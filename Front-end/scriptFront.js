@@ -48,14 +48,16 @@ go.addEventListener('click', () => {
 });
 
 document.addEventListener('DOMContentLoaded', function(event) {
-	document.querySelector('#flip-turn-back').style.visibility ='visible';
-	document.querySelector('#flip-turn-front').style.visibility = 'visible';
-	
-	document.querySelector('#flip-turn-back').onclick = function(){
-		document.querySelector('#flip-card').classList.toggle('do-flip');
-	};
-
-	document.querySelector('#flip-turn-front').onclick = function(){
-		document.querySelector('#flip-card').classList.toggle('do-flip');
-	};
+	document.querySelectorAll('.flip-turn-back').forEach((turnBack) => {
+		turnBack.style.visibility ='visible';
+		turnBack.onclick = function(){
+			turnBack.parentElement.parentElement.classList.toggle('do-flip');
+		};
+	});
+	document.querySelectorAll('.flip-turn-front').forEach((turnFront) => {
+		turnFront.style.visibility ='visible';
+		turnFront.onclick = function(){
+			turnFront.parentElement.parentElement.classList.toggle('do-flip');
+		};
+	});
 });
