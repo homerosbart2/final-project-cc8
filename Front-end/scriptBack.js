@@ -41,13 +41,13 @@ function platformContainer(nombre, ip, puerto, color, id){
 }
 
 function consultarPlataformas() {
-	var http = new XMLHttpRequest();
-	var url = 'consulta.php';
+	let http = new XMLHttpRequest();
+	let url = 'consulta.php';
 
 	http.onreadystatechange = () => {
 		if(http.readyState == XMLHttpRequest.DONE){
-			var respuestaPlataformas = JSON.parse(http.responseText);
-			for(var platId in respuestaPlataformas){
+			let respuestaPlataformas = JSON.parse(http.responseText);
+			for(let platId in respuestaPlataformas){
 				if(!platforms[platId]){
 					platformsContainer.innerHTML = platformContainer(
 						respuestaPlataformas[platId].nombre,
@@ -65,6 +65,25 @@ function consultarPlataformas() {
 
 	http.open("GET", url, true);
 	http.send();
+}
+
+function consultarHardware(){
+	let http = new XMLHttpRequest();
+	let url = 'infoHW.php';
+	let params = "date=" + new Date().toISOString();
+
+	http.onreadystatechange = () => {
+		if(http.readyState == XMLHttpRequest.DONE){
+			let respuestaHardware = JSON.parse(http.responseText);
+			for(let platId in respuestaHardware){
+				platforms[platId]['hardware'] = respuestaHardware[platId]['hardware'];
+			}
+		}
+	}
+
+	http.open("POST", url, true);
+	http.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
+	http.send(params);
 }
 
 function modificar(id) {
@@ -91,7 +110,7 @@ agregarNuevo.addEventListener('click', ()=>{
 		http.onreadystatechange = () => {
 			if(http.readyState === XMLHttpRequest.DONE) {
 				try {
-					var respuesta = JSON.parse(http.responseText);
+					let respuesta = JSON.parse(http.responseText);
 					if(respuesta.success){
 						console.log("Agregado correctamente");
 						nombre.value = "";
@@ -99,6 +118,7 @@ agregarNuevo.addEventListener('click', ()=>{
 						puerto.value = "80";
 						if(modifyId) {
 							modifyId = null;
+							colorCount = 0;
 							platforms = {};
 							platformsContainer.innerHTML = "";
 							addContainer.classList.remove('shown');
@@ -126,5 +146,6 @@ agregarNuevo.addEventListener('click', ()=>{
 document.onreadystatechange = () => {
 	if (document.readyState == "complete"){
 		consultarPlataformas();
+		consultarHardware();
 	}
 }

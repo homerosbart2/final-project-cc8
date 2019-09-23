@@ -7,22 +7,47 @@ class DB extends SQLite3 {
 }
 
 $db = new DB();
-if(!$db)
-{
-    echo $db->lastErrorMsg();
-} else {
-    echo "Open database successfully \r\n";
+
+function getPlataformas($db){
+
+    $sql = "SELECT * FROM plataformas;";
+
+    $ret = $db->query($sql);
+    $plataformas = array();
+
+    while($row = $ret->fetchArray(SQLITE3_ASSOC)){
+        $plataformas[$row['id']] = array('ip' => $row['ip'], 'puerto' => $row['puerto'], 'nombre' => $row['nombre']);
+    }
+
+    return $plataformas;
 }
 
-$sql = "SELECT * FROM plataformas;";
+function insertHW($db, $idHW, $tag, $type, $idPlataforma){
+    
+    $type = ($type == "input") ? "i" : "o" ;
+    $sql = "INSERT OR REPLACE INTO hardware (id, tag, type, plataforma) VALUES ('{$idHW}', '{$tag}', '$type', $idPlataforma)";
 
-$ret = $db->query($sql);
-while($row = $ret->fetchArray(SQLITE3_ASSOC)){
-    echo "id : " . $row['id'] . "\r\n";
-    echo "nombre : " . $row['nombre'] . "\r\n";
-    echo "ip : " . $row['ip'] . "\n";
-    echo "puerto : " . $row['puerto'] . "\r\n";
+    $ret = $db->exec($sql);
+
+    return $ret;
+
 }
 
-$db->close();
+function getHW($db, $idPlataforma){
+
+    $sql = "SELECT * FROM hardware WHERE plataforma = {$idPlataforma}";
+
+    $ret = $db->query($sql);
+
+    $hardware = array();
+    while ($row = $ret->fetchArray(SQLITE3_ASSOC)) {
+        $hardware[$row['id']] = array(
+            'tag' => $row['tag'],
+            'type' => $row['type']
+        );
+    }
+
+    return $hardware;
+}
+
 ?>

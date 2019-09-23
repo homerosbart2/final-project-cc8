@@ -1,11 +1,5 @@
 <?php
-class DB extends SQLite3 {
-  function __construct() {
-      $this->open('frontEnd.db');
-  }
-}
-
-$db = new DB();
+include 'sqlite.php';
 
 $nombre = $_POST['nombre'];
 $ip = $_POST['ip'];
