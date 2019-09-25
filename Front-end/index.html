@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="en" >
 <head>
+  <link href="./fontawesome/css/all.css" rel="stylesheet">
   <meta charset="UTF-8">
   <title>SG</title>
    
@@ -11,9 +12,9 @@
   <div id="body-container" class="body-container shown">
     <div>
       <div class="col">
-        <div id="refresh" class="card1 button shadow--md">
+        <div id="refresh" class="card1 button shadow--md fondo">
           <div class="card--body">
-            <p class="card--text card--size-state1">Refrescar</p>
+            <p class="card--text card--size-state1" style="color: white"><i class="fas fa-redo-alt"></i></p>
           </div>
         </div>
       </div>
@@ -56,81 +57,222 @@
 </div>
 <div id="page-plt" class="page-plt">
   <div class="page-plt-container">
-    <div class="hardware-container">
-      <div class="flip-card-3D-wrapper">
-        <div class="flip-card">
-          <div class="flip-card-front">
-            <div class="card--body">
-              <p class="card--text card--size-state">Name</p>
-              <p class="card--text ">input/output</p>
+    <div class="container2"> 
+      <div class="hardware-container">
+        <div class="flip-card-3D-wrapper">
+          <div class="flip-card">
+            <div class="flip-card-front">
+              <div class="card--body">
+                <p class="card--text card--size-state">Name</p>
+                <p class="card--text ">input/output</p>
+              </div>
+              <button class="flip-turn-back">Modificar</button>
             </div>
-            <button class="flip-turn-back">Modificar</button>
-          </div>
-          <div class="flip-card-back">
-            <div align="center">
-              <span class="switch-container">
-                  <input type="checkbox" id="switch-1">
-                  <label for="switch-1">
-                      <span class="switch-text"></span>
-                      <span class="indicator"></span>
-                  </label>
-              </span>
+            <div class="flip-card-back">
+              <div align="center">
+                <span class="switch-container">
+                    <input type="checkbox" id="switch-1">
+                    <label for="switch-1">
+                        <span class="switch-text"></span>
+                        <span class="indicator"></span>
+                    </label>
+                </span>
+              </div>
+              <div class="card--body">
+                <input type="" name="" class="text-freq" placeholder="Text">
+                <input type="" name="" class="text-freq" placeholder="Frequency">
+              </div>
+              <div align="center">
+                <button class="btn-modify-hardw">✔</button>
+              </div>
+              <button class="flip-turn-front">Cancelar</button>
             </div>
-            <div class="card--body">
-              <input type="" name="" class="text-freq" placeholder="Text">
-              <input type="" name="" class="text-freq" placeholder="Frequency">
-            </div>
-            <div align="center">
-              <button class="btn-modify-hardw">✔</button>
-            </div>
-            <button class="flip-turn-front">Cancelar</button>
-          </div>
-        </div>
-      </div>
-      <div>
-        <button class="btn-control" id="open-modal">Consultar</button>
-      </div>
-    </div>
-    <div class="hardware-container">
-      <div class="flip-card-3D-wrapper">
-        <div class="flip-card">
-          <div class="flip-card-front">
-            <div class="card--body">
-              <p class="card--text card--size-state">Name</p>
-              <p class="card--text ">input/output</p>
-            </div>
-            <button class="flip-turn-back">Modificar</button>
-          </div>
-          <div class="flip-card-back">
-            <div align="center">
-              <span class="switch-container">
-                  <input type="checkbox" id="switch-2">
-                  <label for="switch-2">
-                      <span class="switch-text"></span>
-                      <span class="indicator"></span>
-                  </label>
-              </span>
-            </div>
-            <div class="card--body">
-              <input type="" name="" class="text-freq" placeholder="Text">
-              <input type="" name="" class="text-freq" placeholder="Frequency">
-            </div>
-            <div align="center">
-              <button class="btn-modify-hardw">✔</button>
-            </div>
-            <button class="flip-turn-front">Cancelar</button>
           </div>
         </div>
-      </div>
-      <div>
-        <button class="btn-control" id="open-modal">Consultar</button>
-      </div>
-    </div>
-
-    <div class="back-button-container">
-      <div id="back" class="card1 button shadow--md">
         <div>
-          <p class="card--text card--size-state1">Regresar</p>
+          <button class="btn-control" id="open-modal">Consultar</button>
+        </div>
+      </div>
+      <div class="hardware-container">
+        <div class="flip-card-3D-wrapper">
+          <div class="flip-card">
+            <div class="flip-card-front">
+              <div class="card--body">
+                <p class="card--text card--size-state">Name</p>
+                <p class="card--text ">input/output</p>
+              </div>
+              <button class="flip-turn-back">Modificar</button>
+            </div>
+            <div class="flip-card-back">
+              <div align="center">
+                <span class="switch-container">
+                    <input type="checkbox" id="switch-1">
+                    <label for="switch-1">
+                        <span class="switch-text"></span>
+                        <span class="indicator"></span>
+                    </label>
+                </span>
+              </div>
+              <div class="card--body">
+                <input type="" name="" class="text-freq" placeholder="Text">
+                <input type="" name="" class="text-freq" placeholder="Frequency">
+              </div>
+              <div align="center">
+                <button class="btn-modify-hardw">✔</button>
+              </div>
+              <button class="flip-turn-front">Cancelar</button>
+            </div>
+          </div>
+        </div>
+        <div>
+          <button class="btn-control" id="open-modal">Consultar</button>
+        </div>
+      </div>
+      <div class="hardware-container">
+        <div class="flip-card-3D-wrapper">
+          <div class="flip-card">
+            <div class="flip-card-front">
+              <div class="card--body">
+                <p class="card--text card--size-state">Name</p>
+                <p class="card--text ">input/output</p>
+              </div>
+              <button class="flip-turn-back">Modificar</button>
+            </div>
+            <div class="flip-card-back">
+              <div align="center">
+                <span class="switch-container">
+                    <input type="checkbox" id="switch-2">
+                    <label for="switch-2">
+                        <span class="switch-text"></span>
+                        <span class="indicator"></span>
+                    </label>
+                </span>
+              </div>
+              <div class="card--body">
+                <input type="" name="" class="text-freq" placeholder="Text">
+                <input type="" name="" class="text-freq" placeholder="Frequency">
+              </div>
+              <div align="center">
+                <button class="btn-modify-hardw">✔</button>
+              </div>
+              <button class="flip-turn-front">Cancelar</button>
+            </div>
+          </div>
+        </div>
+        <div>
+          <button class="btn-control" id="open-modal">Consultar</button>
+        </div>
+      </div>
+      <div class="hardware-container">
+        <div class="flip-card-3D-wrapper">
+          <div class="flip-card">
+            <div class="flip-card-front">
+              <div class="card--body">
+                <p class="card--text card--size-state">Name</p>
+                <p class="card--text ">input/output</p>
+              </div>
+              <button class="flip-turn-back">Modificar</button>
+            </div>
+            <div class="flip-card-back">
+              <div align="center">
+                <span class="switch-container">
+                    <input type="checkbox" id="switch-2">
+                    <label for="switch-2">
+                        <span class="switch-text"></span>
+                        <span class="indicator"></span>
+                    </label>
+                </span>
+              </div>
+              <div class="card--body">
+                <input type="" name="" class="text-freq" placeholder="Text">
+                <input type="" name="" class="text-freq" placeholder="Frequency">
+              </div>
+              <div align="center">
+                <button class="btn-modify-hardw">✔</button>
+              </div>
+              <button class="flip-turn-front">Cancelar</button>
+            </div>
+          </div>
+        </div>
+        <div>
+          <button class="btn-control" id="open-modal">Consultar</button>
+        </div>
+      </div>
+      <div class="hardware-container">
+        <div class="flip-card-3D-wrapper">
+          <div class="flip-card">
+            <div class="flip-card-front">
+              <div class="card--body">
+                <p class="card--text card--size-state">Name</p>
+                <p class="card--text ">input/output</p>
+              </div>
+              <button class="flip-turn-back">Modificar</button>
+            </div>
+            <div class="flip-card-back">
+              <div align="center">
+                <span class="switch-container">
+                    <input type="checkbox" id="switch-2">
+                    <label for="switch-2">
+                        <span class="switch-text"></span>
+                        <span class="indicator"></span>
+                    </label>
+                </span>
+              </div>
+              <div class="card--body">
+                <input type="" name="" class="text-freq" placeholder="Text">
+                <input type="" name="" class="text-freq" placeholder="Frequency">
+              </div>
+              <div align="center">
+                <button class="btn-modify-hardw">✔</button>
+              </div>
+              <button class="flip-turn-front">Cancelar</button>
+            </div>
+          </div>
+        </div>
+        <div>
+          <button class="btn-control" id="open-modal">Consultar</button>
+        </div>
+      </div>
+      <div class="hardware-container">
+        <div class="flip-card-3D-wrapper">
+          <div class="flip-card">
+            <div class="flip-card-front">
+              <div class="card--body">
+                <p class="card--text card--size-state">Name</p>
+                <p class="card--text ">input/output</p>
+              </div>
+              <button class="flip-turn-back">Modificar</button>
+            </div>
+            <div class="flip-card-back">
+              <div align="center">
+                <span class="switch-container">
+                    <input type="checkbox" id="switch-2">
+                    <label for="switch-2">
+                        <span class="switch-text"></span>
+                        <span class="indicator"></span>
+                    </label>
+                </span>
+              </div>
+              <div class="card--body">
+                <input type="" name="" class="text-freq" placeholder="Text">
+                <input type="" name="" class="text-freq" placeholder="Frequency">
+              </div>
+              <div align="center">
+                <button class="btn-modify-hardw">✔</button>
+              </div>
+              <button class="flip-turn-front">Cancelar</button>
+            </div>
+          </div>
+        </div>
+        <div>
+          <button class="btn-control" id="open-modal">Consultar</button>
+        </div>
+      </div>
+    </div>
+    <div class="back-button-container">
+      <div id="back" class="card1 button shadow--md" style="background: linear-gradient(to right, #8e2de2, #4a00e0);">
+        <div>
+          <p class="card--text card--size-state1" style="color: white;">Regresar</p>
         </div>
       </div>
     </div>

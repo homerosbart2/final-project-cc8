@@ -38,11 +38,24 @@ body {
   justify-content: center;
 }
 
+.container2 {
+  margin-left: auto;
+  margin-right: auto;
+  margin-top: 5rem;
+  max-width: 1300px;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+}
+
 .hardware-container{
+  height: 328px;
   display: flex;
   align-items: center;
   flex-direction: column;
   justify-content: center;
+  min-width: 300px;
 }
 
 .plt-container{
@@ -140,7 +153,11 @@ body {
   flex-direction: column;
   text-align: center;
   cursor: pointer;
+   
+}
 
+.fondo {
+  background: linear-gradient(to right, #0cebeb, #4a00e0);
 }
 
 .card {
@@ -313,7 +330,9 @@ input:focus {
   display: flex;
   width: 100%;
   height: 100%;
-  justify-content: center;
+  justify-content: space-around;
+  flex-wrap: wrap;
+  overflow: auto;
 }
 
 .flip-card-3D-wrapper{
@@ -501,5 +520,6 @@ input:focus {
 .back-button-container {
   position: fixed;
   display: flex;
-  width: 100%;
+  width: 100%; 
+  margin-bottom: 20px;
 }
