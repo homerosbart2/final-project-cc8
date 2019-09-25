@@ -156,8 +156,12 @@ body {
    
 }
 
-.fondo {
-  background: linear-gradient(to right, #0cebeb, #4a00e0);
+.btn-refresh {
+  
+}
+
+.fondo1 {
+  background: transparent;
 }
 
 .card {
@@ -387,6 +391,34 @@ input:focus {
   transition: 0.3s ease;
 }
 
+.btn-consultar{
+  outline: none;
+  position: absolute;
+  top: 5px;
+  right: 5px;
+  width: 50px;
+  height: 50px;
+  background: transparent;
+  cursor: pointer;
+  visibility: hidden;
+  font-weight: 600;
+  font-size: 35px;
+  padding: 0;
+  color: white;
+  border: none; 
+  border-bottom-left-radius: 12px; 
+  border-bottom-right-radius: 12px;
+  visibility: visible;
+  transition: 0.3s ease;
+  text-shadow: 0 5px 8px rgba(0,0,0,0.30);
+
+}
+
+.btn-consultar:hover{
+  -webkit-transform: scale(0.95);
+          transform: scale(0.95);
+}
+
 .flip-turn-front:hover{
   background: white;
   color: black;
@@ -523,3 +555,4 @@ input:focus {
   width: 100%; 
   margin-bottom: 20px;
 }
+
