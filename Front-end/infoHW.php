@@ -2,14 +2,19 @@
 
 	include 'sqlite.php';
 
-	$plataformas = getPlataformas($db);
+	//$plataformas = getPlataformas($db);
+
 
 	//$fecha = $_GET['date'];
 	$fecha = $_POST['date'];
+	$idPlataforma = $_POST['idPlat'];
+
+	$plataforma = getPlataforma($db, $idPlataforma);
 
 	$response = array();
 
-	foreach ($plataformas as $idPlataforma => $plataforma) {
+	//foreach ($plataformas as $idPlataforma => $plataforma) {
+	if($plataforma){
 		$request = array();
 		$request['id'] = $plataforma['nombre'];
 		$request['url'] = $plataforma['ip'];
@@ -49,6 +54,7 @@
 		}
 		$response["{$idPlataforma}"] = $platformResponse;
 	}
+	//}
 
 	echo json_encode($response);
 

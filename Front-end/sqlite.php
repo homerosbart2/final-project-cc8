@@ -22,6 +22,25 @@ function getPlataformas($db){
     return $plataformas;
 }
 
+function getPlataforma($db, $id){
+
+    $sql = "SELECT * FROM plataformas WHERE id = '{$id}'";
+
+    $ret = $db->query($sql);
+    $result = null;
+
+    while($row = $ret->fetchArray(SQLITE3_ASSOC)){
+        $result = array(
+            'ip' => $row['ip'],
+            'nombre' => $row['nombre'],
+            'puerto' => $row['puerto']
+        );
+    }
+
+    return $result;
+
+}
+
 function insertHW($db, $idHW, $tag, $type, $idPlataforma){
     
     $type = ($type == "input") ? "i" : "o" ;

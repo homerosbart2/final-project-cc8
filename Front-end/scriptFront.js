@@ -8,9 +8,19 @@ const back = document.querySelector('#back');
 const addContainer = document.querySelector('#add-container');
 const go = document.querySelector('#go');
 
-const showPagePlt = () => {
-	bodyContainer.classList.remove('shown');
-	pagePlt.classList.add('shown');
+const showPagePlt = (id) => {
+	if(id){
+		if(platforms[id].hardware){
+			hardwaresContainer.innerHTML = hardwareContainer(id);
+			loadFlipButton();
+			bodyContainer.classList.remove('shown');
+			pagePlt.classList.add('shown');
+		}
+	}
+	else{
+		bodyContainer.classList.remove('shown');
+		pagePlt.classList.add('shown');
+	}
 }
 
 const showAdd = () => {
@@ -47,7 +57,7 @@ go.addEventListener('click', () => {
 	showPagePlt();
 });
 
-document.addEventListener('DOMContentLoaded', function(event) {
+function loadFlipButton() {
 	document.querySelectorAll('.flip-turn-back').forEach((turnBack) => {
 		turnBack.style.visibility ='visible';
 		turnBack.onclick = function(){
@@ -60,4 +70,4 @@ document.addEventListener('DOMContentLoaded', function(event) {
 			turnFront.parentElement.parentElement.classList.toggle('do-flip');
 		};
 	});
-});
+}
