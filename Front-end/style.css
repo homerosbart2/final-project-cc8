@@ -448,7 +448,7 @@ input:focus {
   flex-direction: column;
   justify-content: center;
   text-align: center;
-  background: linear-gradient(to top right, #ff5f6d, #ffc371);
+  background: linear-gradient(to bottom right, #fc5c7d, #6a82fb);
   border-radius: 12px;
 }
 .flip-card .flip-card-back {
@@ -556,3 +556,6 @@ input:focus {
   margin-bottom: 20px;
 }
 
+.loading {
+  opacity: 0.5;
+}
