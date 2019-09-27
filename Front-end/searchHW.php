@@ -37,8 +37,14 @@
         curl_close($curl);
         if($platformResponse){
             echo $platformResponse;
+            $respuesta = json_decode($platformResponse);
+            $data = $respuesta['data'];
+            foreach ($data as $fechaReg => $registro) {
+                insertSearchRow($db, $idPlat, $idHW, $fechaReg, $registro['sensor'], $registro['status'], $registro['freq'], $registro['text']);
+            }
         } else {
-            echo 'error';
+            $registros = getRegistros($db, $idPlat, $idHW, $start, $finish);
+            echo json_encode($registros);
         }
     } else {
         echo 'Error';
