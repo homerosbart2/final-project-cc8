@@ -60,9 +60,10 @@ function getHW($db, $idPlataforma){
 
     $hardware = array();
     while ($row = $ret->fetchArray(SQLITE3_ASSOC)) {
+        $type = ($row['type'] == "i") ? "input" : "output";
         $hardware[$row['id']] = array(
             'tag' => $row['tag'],
-            'type' => $row['type']
+            'type' => $type
         );
     }
 

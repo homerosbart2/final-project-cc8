@@ -21,9 +21,9 @@ refresh.addEventListener('click', () => {
 
 function platformContainer(nombre, ip, puerto, color, id) {
 	return `
-		<div class="plt-container" onclick="showPagePlt(${id})">
+		<div class="plt-container">
 			<div class="col">
-				<div class="card shadow--sm" style="${color}">
+				<div class="card shadow--sm" style="${color}" onclick="showPagePlt(${id})">
 					<div class="card--body">
 						<p class="card--text card--size-state">${nombre}</p>
 						<p class="card--text">${ip}:${puerto}</p>
@@ -47,20 +47,20 @@ function hardwareContainer(id) {
 	let hardwares = ``;
 
 	for (let idHW in hardware) {
-		let inputBool = hardware[idHW].type == "i";
-		let type = (inputBool) ? "input" : "output";
+		let inputBool = hardware[idHW].type == "input";
+		let type = (inputBool) ? "Input" : "Output";
 		let botonText = (!inputBool) ?
 		`<div align="center">
 			<span class="switch-container">
-				<input type="checkbox" id="switch-${idHW}">
-				<label for="switch-${idHW}">
+				<input type="checkbox" id="switch-${id}-${idHW}">
+				<label for="switch-${id}-${idHW}">
 					<span class="switch-text"></span>
 					<span class="indicator"></span>
 				</label>
 			</span>
 		</div>
 		<div class="card--body">
-		<input type="" name="" class="text-freq" placeholder="Text">`
+		<input id="text-${id}-${idHW}" class="text-freq" placeholder="Text">`
 			:
 			`<div class="card--body">`
 			;
@@ -79,10 +79,10 @@ function hardwareContainer(id) {
 					</div>
 					<div class="flip-card-back">
 						${botonText}
-							<input type="" name="" class="text-freq" placeholder="Frequency">
+							<input id="freq-${id}-${idHW}" class="text-freq" placeholder="Frequency">
 						</div>
 						<div align="center">
-							<button class="btn-modify-hardw">✔</button>
+							<button class="btn-modify-hardw" onclick="changeHardware(${id},'${idHW}')">✔</button>
 						</div>
 						<button class="flip-turn-front">Cancelar</button>
 					</div>
@@ -152,6 +152,52 @@ function modificar(id) {
 	addContainer.classList.add('shown');
 	isAddContainerShown = true;
 	add.querySelector("div p").innerHTML = "Cancelar";
+}
+
+function changeHardware(idPlat, idHW){
+	let type = platforms[idPlat].hardware[idHW].type;
+	let outputBool = type == "output";
+	let freq = document.querySelector(`#freq-${idPlat}-${idHW}`);
+	let status = null;
+	let text = null;
+	if(outputBool){
+		status = document.querySelector(`#switch-${idPlat}-${idHW}`);
+		text = document.querySelector(`#text-${idPlat}-${idHW}`);
+	}
+	if(freq.value != ""){
+		let control = true;
+		if(outputBool){
+			if(status != null && text != null && text.value != ""){
+				control = true;
+			} else control = false;
+		}
+		if(control){
+			let http = new XMLHttpRequest();
+			let url = 'changeHW.php';
+			let fecha = new Date().toISOString();
+			let params = `idPlat=${idPlat}&idHW=${idHW}&date=${fecha}&type=${type}&freq=${freq.value}`;
+			if(outputBool) params += `&status=${status.checked}&text=${text.value}`;
+
+			console.log(params);
+			
+			http.onreadystatechange = () => {
+				if(http.readyState === XMLHttpRequest.DONE){
+					try{
+						console.log(http.responseText);
+						let respuesta = JSON.parse(http.responseText);
+						console.log(respuesta.status);
+					}catch (error){
+						console.log("error");
+					}
+				}
+			}
+
+			http.open("POST", url, true);
+			http.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
+			http.send(params);
+		}
+	}
+	
 }
 
 agregarNuevo.addEventListener('click', () => {

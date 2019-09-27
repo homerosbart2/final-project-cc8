@@ -2,27 +2,48 @@
 
     include 'sqlite.php';
 
-    $sql = "SELECT * from plataformas WHERE id = 1"
+    $idPlat = $_POST['idPlat'];
+    $idHW = $_POST['idHW'];
+    $fecha = $_POST['fecha'];
+    $start = $_POST['start'];
+    $finish = $_POST['finish'];
 
-    $ret = $db->exec($sql);
-    $row = $ret->fetchArray(SQLITE3_ASSOC);
+    $result = getPlataforma($db, $idPlat);
 
-    $request = array(
-        'id' => $row['nombre'],
-        'url' => $row['ip'],
-        'date' => "1989-12-20T07:35:58.757Z",
-        'search' => array(
-            'id_hardware' => 'id03',
-            'start_date' => '2019-09-20T14:40:08.268Z',
-            'finish_date' => '2019-09-22T18:08:49.119Z'
-        )
-    );
+    if($result) {
+        $request = array(
+            'id' => $result['nombre'],
+            'url' => $result['ip'],
+            'date' => $fecha,
+            'search' => array(
+                'id_hardware' => $idHW,
+                'start_date' => $start,
+                'finish_date' => $finish
+            )
+        );
 
-    $request = json_encode($request);
+        $request = json_encode($request);
 
-    $url = "http://{$row['ip']}/search/";
-    
-    $curl = curl_init($url);
-    curl_setopt($curl,)
+        $url = "http://{$result['ip']}/search/";
+        
+        $curl = curl_init($url);
+        curl_setopt($curl, CURLOPT_PORT, $result['puerto']);
+        curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($curl, CURLOPT_POST, TRUE);
+        curl_setopt($curl, CURLOPT_POSTFIELDS, $request);
+        curl_setopt($curl, CURLOPT_HTTPHEADER, array('Content-Type:application/json'));
+
+        $platformResponse = curl_exec($curl);
+        curl_close($curl);
+        if($platformResponse){
+            echo $platformResponse;
+        } else {
+            echo 'error';
+        }
+    } else {
+        echo 'Error';
+    }
+
+    $db->close();
 
 ?>

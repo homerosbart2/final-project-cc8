@@ -9,7 +9,7 @@ $type = $_POST['type'];
 $status = null;
 $freq = $_POST['freq'];
 $text = null;
-$inputBool = ($type === "i") ? true : false;
+$inputBool = ($type === "input") ? true : false;
 if(!$inputBool){
     $status = $_POST['status'] == "true";
     $text = $_POST['text'];
