@@ -7,6 +7,7 @@
    
   <link rel="stylesheet" href="./style.css">
   <link rel="stylesheet" href="./modal.css">
+  <link rel="stylesheet" href="./chart-style.css">
 </head>
 <body>
   <div id="body-container" class="body-container shown">
@@ -65,7 +66,7 @@
                 <p class="card--text ">input/output</p>
               </div>
               <button class="flip-turn-back">Modificar</button>
-              <button class="btn-consultar"><i class="fas fa-info-circle"></i></button>
+              <button class="btn-consultar" id="open-modal"><i class="fas fa-info-circle"></i></button>
             </div>
             <div class="flip-card-back">
               <div align="center">
@@ -136,15 +137,20 @@
   <span id="modal-1" class="modal-overlay">
     <span class="modal-container">
         <span class="close-container">
-          X
+          <i class="fas fa-times"></i>
         </span>
-        <h1>Shinshé</h1>
+        <div class="">
+          <span class="chart-container">
+            <canvas id="myChart" width="400" height="400"></canvas>
+          </span>
+        </div>
     </span>
   </span>
 </body>
-
+<script type="text/javascript" src="Chart.bundle.min.js"></script>
 <script type="text/javascript" src="./scriptFront.js"></script>
 <script type="text/javascript" src="./scriptBack.js"></script>
 <script type="text/javascript" src="./modal.js"></script>
+<script type="text/javascript" src="./chart-script.js"></script>
 </html>
 

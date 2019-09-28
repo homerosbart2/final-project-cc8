@@ -29,16 +29,17 @@ body {
     display: flex;
     justify-content: center;
     align-items: center;
-    width: calc(100% - 16px);
-    height: calc(100% - 16px);
+    width: calc(80% - 16px);
+    height: calc(90% - 16px);
     background: white;
 }
 
 .modal-overlay .modal-container .close-container {
     position: absolute;
-    top: 28px;
-    right: 32px;
+    top: 53px;
+    right: 176px;
     cursor: pointer;
     font-weight: bold;
     font-size: 24px;
 }
+

@@ -23,7 +23,7 @@ function platformContainer(nombre, ip, puerto, color, id) {
 	return `
 		<div class="plt-container">
 			<div class="col">
-				<div class="card shadow--sm loading" style="${color}" onclick="showPagePlt(${id})">
+				<div class="card shadow--sm loading" id="platContainer-${id}" style="${color}" onclick="showPagePlt(${id})">
 					<div class="card--body">
 						<p class="card--text card--size-state">${nombre}</p>
 						<p class="card--text">${ip}:${puerto}</p>
@@ -135,6 +135,7 @@ function consultarHardware(id) {
 			for (let platId in respuestaHardware) {
 				platforms[platId]['hardware'] = respuestaHardware[platId]['hardware'];
 			}
+			document.querySelector(`#platContainer-${id}`).classList.remove('loading');
 			loadFlipButton();
 		}
 	}

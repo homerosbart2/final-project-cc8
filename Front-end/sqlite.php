@@ -52,6 +52,37 @@ function insertHW($db, $idHW, $tag, $type, $idPlataforma){
 
 }
 
+function insertSearchRow($db, $idPlat, $idHW, $fecha, $sensor, $status, $freq, $text){
+    $sql = "INSERT OR REPLACE INTO searchdata (idhardware, idplataforma, fecha, sensor, status, frequency, text) VALUES ('{$idHW}',{$idPlat},'{$fecha}',{$sensor},{$status},{$freq},'{$text}');";
+
+    $ret = $db->exec($sql);
+
+    return $ret;
+}
+
+function getRegistros($db, $idPlat, $idHW, $start, $finish){
+    $sql = "SELECT * FROM searchdata WHERE fecha >= '$start' AND fecha <= '$finish'";
+
+    $ret = $db->query($sql);
+    $registros = array(
+        'search' => array(
+            'id_hardware' => $idHW,
+        ),
+        'data' => array()
+    );
+
+    while ($row = $ret->fetchArray(SQLITE3_ASSOC)) {
+        $registros['data'][$row['fecha']] = array(
+            'sensor' => $row['sensor'],
+            'status' => $row['status'],
+            'freq' => $row['frequency'],
+            'text' => $row['text']
+        );
+    }
+
+    return $registros;
+}
+
 function getHW($db, $idPlataforma){
 
     $sql = "SELECT * FROM hardware WHERE plataforma = {$idPlataforma}";
