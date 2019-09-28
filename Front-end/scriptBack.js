@@ -24,6 +24,9 @@ function platformContainer(nombre, ip, puerto, color, id) {
 		<div class="plt-container">
 			<div class="col">
 				<div class="card shadow--sm loading" id="platContainer-${id}" style="${color}" onclick="showPagePlt(${id})">
+					<div class="loading-spinner-container">
+						<i class="fas fa-circle-notch fa-spin"></i>
+					</div>
 					<div class="card--body">
 						<p class="card--text card--size-state">${nombre}</p>
 						<p class="card--text">${ip}:${puerto}</p>
