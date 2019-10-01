@@ -43,6 +43,7 @@ var myChart = new Chart(ctx, {
         }]
     },
     options: {
+        responsive: true,
         scales: {
             yAxes: [{
                 ticks: {
@@ -51,9 +52,7 @@ var myChart = new Chart(ctx, {
             }],
             xAxes: [{
                 ticks: {
-                    callback: function(value, index, values) {
-                        return index === 0 || index === values.length - 1 ? value : '';
-                    }
+                    beginAtZero: true
                 }
             }]
         }

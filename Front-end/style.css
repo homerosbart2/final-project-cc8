@@ -253,6 +253,21 @@ input{
   width: 125px;
 }
 
+.ip-port-input .fecha,
+.ip-port-input .hora {
+  text-align: center;
+  background: transparent;
+  border: none;
+}
+
+.ip-port-input .hora {
+  width: 95px;
+}
+
+.ip-port-input .fecha {
+  width: 130px;
+}
+
 input:focus {
   outline: 0;
 }
@@ -276,6 +291,21 @@ input:focus {
   color: #ffafbd;
   transition: 0.3s ease;
   cursor: pointer;
+}
+
+.boton2{
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  background: transparent;
+  color: #ffafbd;
+  transition: 0.3s ease;
+  cursor: pointer;
+}
+
+.boton2:hover{
+  -webkit-transform: scale(1.2);
+          transform: scale(1.2);
 }
 
 .boton:hover {

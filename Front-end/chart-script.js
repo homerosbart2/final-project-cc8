@@ -1,9 +1,10 @@
 var ctx = document.querySelector('#myChart');
 
-var myChart = new Chart(ctx, {
+
+var myChart = new Chart(ctx, { 
     type: 'line',
     data: {
-        labels: [...Array(6).keys()],
+        labels: [...Array(9).keys()],
         datasets: [{
             label: 'Datos',
             data: [
@@ -30,8 +31,21 @@ var myChart = new Chart(ctx, {
                 {
                     x: 5,
                     y: 5
-                } 
+                },
+                {
+                    x: 6,
+                    y: 10
+                },
+                {
+                    x: 7,
+                    y: 10
+                },
+                {
+                    x: 8,
+                    y: 10
+                }
             ],
+            responsive: true,
             lineTension: 0.2,
             pointStyle: 'circle',
             pointRadius: 5,
@@ -51,9 +65,7 @@ var myChart = new Chart(ctx, {
             }],
             xAxes: [{
                 ticks: {
-                    callback: function(value, index, values) {
-                        return index === 0 || index === values.length - 1 ? value : '';
-                    }
+                    beginAtZero: true
                 }
             }]
         }

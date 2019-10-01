@@ -1,5 +1,9 @@
+const grafico = document.querySelector('#chart-container');
+
 document.querySelector('#open-modal').addEventListener('click', () => {
     document.querySelector('#modal-1').classList.add('shown');
+     
+
 });
 
 document.querySelector('.modal-container .close-container').addEventListener('click', (event) => {
