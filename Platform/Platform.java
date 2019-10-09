@@ -19,6 +19,7 @@ import java.time.Instant;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.text.DateFormat;
+import java.text.DecimalFormat;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -40,6 +41,7 @@ import com.google.gson.Gson;
  */
 public class Platform {
     public static AtomicInteger correlative = new AtomicInteger(-1);
+    public static AtomicInteger eventCorrelative = new AtomicInteger(0);
 
     private static String db = "default.db";
     private static Connection sqliteConnection;
@@ -155,9 +157,17 @@ public class Platform {
             Platform.executeQuery(query);
             query = "CREATE TABLE IF NOT EXISTS hardware(id varchar primary key, tag varchar, type boolean, status boolean, frequency int, text varchar);";
             Platform.executeQuery(query);
+            query = "CREATE TABLE IF NOT EXISTS events (id varchar primary key, if_left_url varchar, if_left_id varchar, if_left_freq int, if_operator varchar, if_right_sensor int, if_right_status boolean, if_right_freq int, if_right_text varchar, then_url varchar, then_id varchar, then_status boolean, then_freq int, then_text varchar, else_url varchar, else_id varchar, else_status boolean, else_freq int, else_text varchar);";
+            Platform.executeQuery(query);
+
+            query = "SELECT id FROM events ORDER BY id DESC LIMIT 1;";
+            ResultSet rs = Platform.executeQuery(query);
+            while (rs.next()) {
+                eventCorrelative.set(Integer.parseInt(rs.getString("id").substring(2, 8)));
+            }
 
             query = "SELECT id FROM hardware;";
-            ResultSet rs = Platform.executeQuery(query);
+            rs = Platform.executeQuery(query);
             while (rs.next()) {
                 Platform.hardwareIds.add(rs.getString("id"));
             }
@@ -172,9 +182,10 @@ public class Platform {
             rs.close();
             System.out.println(query);
 
-            System.out.println("INFO:\tSiguiente correlativo: " + (Platform.correlative.get() + 1));
+            System.out.println("INFO:\tSiguiente correlativo de reporte: " + (Platform.correlative.get() + 1));
+            System.out.println("\tSiguiente correlativo de evento: " + Platform.eventCorrelative.get() + 1);
             System.out.println("\tDispositivos asociados a esta platoforma -> " + Platform.hardwareIds);
-            NetworkService networkService = new NetworkService(nThreads, Platform.sqliteConnection);
+            NetworkService networkService = new NetworkService(nThreads);
     
             new Thread(networkService).start();
         } catch (BindException e) {
@@ -188,13 +199,11 @@ public class Platform {
 class NetworkService implements Runnable {
     private final ServerSocket serverSocket;
     private final ExecutorService pool;
-    private final Connection sqliteConnection;
 
-    public NetworkService(int nThreads, Connection sqliteConnection)
+    public NetworkService(int nThreads)
         throws IOException {
         this.serverSocket = new ServerSocket(Platform.port);
         this.pool = Executors.newFixedThreadPool(nThreads);
-        this.sqliteConnection = sqliteConnection;
     }
 
     public void run() {
@@ -211,8 +220,8 @@ class NetworkService implements Runnable {
 class Handler implements Runnable {
     private final Socket s;
     private static SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", Locale.US);
+    private static DecimalFormat decimalFormat = new DecimalFormat("000000");
     private static Gson gson = new Gson();
-    private static int speed = 255;
 
     Handler(Socket socket) { 
         this.s = socket;
@@ -241,7 +250,7 @@ class Handler implements Runnable {
         BufferedReader in = null;
         PrintWriter out = null;
         OutputStream bufferFileOut = null;
-        String fileName, props, method, input, contentType, connection, url;
+        String fileName, props, method, input, contentType, url;
         String[] splittedUrl;
         char[] body;
         int count, contentLength;
@@ -257,7 +266,6 @@ class Handler implements Runnable {
             method = "";
             input = "";
             contentType = "";
-            connection = "";
             count = 0;
             contentLength = 0;
 
@@ -300,10 +308,6 @@ class Handler implements Runnable {
                         contentType = getContentType(fileName);
                     }else{
                         switch(props){
-                            case "CONNECTION:":{
-                                connection = parse.nextToken();
-                                break;
-                            }
                             case "CONTENT-TYPE:":{
                                 contentType = parse.nextToken();
                                 break;
@@ -338,13 +342,13 @@ class Handler implements Runnable {
                 }else if(fileName.equals("request.json")){
                     String date =           dateFormat.format(new Date());
                     String socket =         this.s.getRemoteSocketAddress().toString();
-                    socket = socket.substring(1, socket.length());
+                    socket =                socket.substring(1, socket.length());
                     String id =             params.containsKey("id") ? params.get("id") : "";
-                    String type =             params.containsKey("type") ? params.get("type") : "false";
-                    String frequency =             params.containsKey("frequency") ? params.get("frequency") : "-1";
-                    String sensor =             params.containsKey("sensor") ? params.get("sensor") : "-1";
-                    String status =             params.containsKey("status") ? params.get("status") : "false";
-                    String text =             params.containsKey("text") ? params.get("text") : "";
+                    String type =           params.containsKey("type") ? params.get("type") : "false";
+                    String frequency =      params.containsKey("frequency") ? params.get("frequency") : "-1";
+                    String sensor =         params.containsKey("sensor") ? params.get("sensor") : "-1";
+                    String status =         params.containsKey("status") ? params.get("status") : "false";
+                    String text =           params.containsKey("text") ? params.get("text") : "";
 
                     if (!Platform.hardwareIds.contains(id)) {
                         Platform.hardwareIds.add(id);
@@ -373,8 +377,6 @@ class Handler implements Runnable {
 
                     Platform.executeQuery(query);
 
-                    int m1Int = 0, m2Int = 0;
-
                     query = "SELECT * FROM hardware WHERE id = '" + id + "';";
                     ResultSet rs = Platform.executeQuery(query);
                     while (rs.next()) {
@@ -384,9 +386,6 @@ class Handler implements Runnable {
                         System.out.println("STATUS:\t" + status);
                     }
                     rs.close();
-                    
-
-                    // speed = speed == 255 ? 125 : speed == 125 ? 0 : 255; 
                     
                     String response = "{" + 
                         "\"status\": " + status +
@@ -423,7 +422,8 @@ class Handler implements Runnable {
             } catch (SQLException e) {
                 System.out.println(e);
             } else if (method.equals("POST")) try {
-                FrontendRequest frontendRequest = gson.fromJson(new String(body), FrontendRequest.class);
+                String stringBody = new String(body).replace("\"condition\"", "\"operator\"").replace("\"if\"", "\"condition\"").replace("\"then\"", "\"consequence\"").replace("\"else\"", "\"alternative\"");
+                FrontendRequest frontendRequest = gson.fromJson(stringBody, FrontendRequest.class);
                 Date now = new Date();
                 String response = "{\"id\":\"" + Platform.id + "\", \"url\":\"" + Platform.ip + "\", \"date\": \"" + dateFormat.format(now) + "\"";
                 if (fileName.equals("search/")) {
@@ -458,7 +458,7 @@ class Handler implements Runnable {
                     rs.close();
                     response = response.substring(0, response.length() - 2);
                     response += "}";
-                }  else if (fileName.equals("change/")) {
+                } else if (fileName.equals("change/")) {
                     try {
                         Hardware[] hardwareArray = frontendRequest.decodeHardware();
                         for (Hardware hardware : hardwareArray) {
@@ -478,6 +478,107 @@ class Handler implements Runnable {
                         response += ", \"status\": \"ERROR\""; 
                     }
                    
+                } else if (fileName.equals("create/")) {
+                    try {
+                        Create create = frontendRequest.create;
+                        if (create != null) {
+                            String eventCorrelative = "EV" + decimalFormat.format(Platform.eventCorrelative.getAndIncrement() + 1);
+                            Condition condition = create.condition;
+                            Left left = condition.left;
+                            Right right = condition.right;
+                            Consequence consequence = create.consequence;
+                            Consequence alternative = create.alternative;
+
+                            if (condition != null && consequence != null && alternative != null) {
+                                String query = "INSERT INTO events VALUES ('"
+                                    + eventCorrelative + "','"
+                                    + left.url + "','"
+                                    + left.id + "',"
+                                    + left.freq + ",'"
+                                    + condition.operator + "',"
+                                    + right.sensor + ","
+                                    + right.status + ","
+                                    + right.freq + ",'"
+                                    + right.text + "','"
+                                    + consequence.url + "','"
+                                    + consequence.id + "',"
+                                    + consequence.status + ","
+                                    + consequence.freq + ",'"
+                                    + consequence.text + "','"
+                                    + alternative.url + "','"
+                                    + alternative.id + "',"
+                                    + alternative.status + ","
+                                    + alternative.freq + ",'"
+                                    + alternative.text + "'"
+                                    + ");";
+    
+                                System.out.println("QUERY:\t" + query);
+            
+                                Platform.executeQuery(query);
+    
+                                response += ", \"idEvent\": \"" + eventCorrelative + "\"";
+                                response += ", \"status\": \"OK\""; 
+
+                            } else {
+                                response += ", \"status\": \"ERROR\"";
+                            }
+                        } else {
+                            response += ", \"status\": \"ERROR\"";
+                        }
+                    } catch (SQLException e) {
+                        System.out.println(e);
+                        response += ", \"status\": \"ERROR\"";
+                    }
+                } else if (fileName.equals("update/")) {
+                    Update update = frontendRequest.update;
+                    if (update != null) {
+                        String eventCorrelative = update.id;
+                        Condition condition = update.condition;
+                        Left left = condition.left;
+                        Right right = condition.right;
+                        Consequence consequence = update.consequence;
+                        Consequence alternative = update.alternative;
+
+                        String query = "UPDATE events SET ";
+                        if (condition != null) {
+                            if (left != null) {
+                                query += left.url != null ? "if_left_url = '" + left.url + "', " : "";
+                                query += left.id != null ? "if_left_id = '" + left.id + "', " : "";
+                                query += left.freq != 0 ? "if_left_freq = " + left.freq + ", " : "";
+                            }
+
+                            query += condition.operator != null ? "if_operator = '" + condition.operator + "', " : "";
+
+                            if (right != null) {
+                                query += right.sensor != 0 ? "if_right_sensor = " + right.sensor + ", " : "";
+                                query += "if_right_status = " + right.status + ", ";
+                                query += right.freq != 0 ? "if_right_freq = " + right.freq + ", " : "";
+                                query += right.text != null ? "if_right_text = '" + right.text + "', " : "";
+                            }
+                        }
+
+                        if (consequence != null) {
+                            query += consequence.url != null ? "then_url = '" + consequence.url + "', " : "";
+                            query += consequence.id != null ? "then_id = '" + consequence.id + "', " : "";
+                            query += "then_status = " + consequence.status + ", ";
+                            query += consequence.freq != 0 ? "then_freq = " + consequence.freq + ", " : "";
+                            query += consequence.text != null ? "then_text = '" + consequence.text + "', " : "";
+                        }
+
+                        if (alternative != null) {
+                            query += alternative.url != null ? "else_url = '" + alternative.url + "', " : "";
+                            query += alternative.id != null ? "else_id = '" + alternative.id + "', " : "";
+                            query += "else_status = " + alternative.status + ", ";
+                            query += alternative.freq != 0 ? "else_freq = " + alternative.freq + ", " : "";
+                            query += alternative.text != null ? "else_text = '" + alternative.text + "', " : "";
+                        }
+                        query = query.substring(0, query.length() - 2);
+                        query += " WHERE id = '" + eventCorrelative + "';";
+                        System.out.println(query);
+                        Platform.executeQuery(query);
+                    } else {
+                        response += ", \"status\": \"ERROR\"";
+                    }
                 }
                 response += "}";
                 out.println("HTTP/1.1 200 OK");
