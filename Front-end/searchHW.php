@@ -37,7 +37,7 @@
         curl_close($curl);
         if($platformResponse){
             echo $platformResponse;
-            $respuesta = json_decode($platformResponse);
+            $respuesta = json_decode($platformResponse, true);
             $data = $respuesta['data'];
             foreach ($data as $fechaReg => $registro) {
                 insertSearchRow($db, $idPlat, $idHW, $fechaReg, $registro['sensor'], $registro['status'], $registro['freq'], $registro['text']);

@@ -1,5 +1,40 @@
 var ctx = document.querySelector('#myChart');
 
+function createNewChart(labels, data){
+    myChart = new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: labels,
+            datasets: [{
+                label: 'Datos',
+                data: data,
+                responsive: true,
+                lineTension: 0.2,
+                pointStyle: 'circle',
+                pointRadius: 5,
+                backgroundColor: 'rgba(54, 162, 235, 0.3)',
+                pointBackgroundColor: 'rgba(54, 162, 235, 1)',
+                borderColor: '#ffdde1',
+                borderWidth: 3,
+                pointHoverBorderWidth: 8,
+            }]
+        },
+        options: {
+            scales: {
+                yAxes: [{
+                    ticks: {
+                        beginAtZero: true
+                    }
+                }],
+                xAxes: [{
+                    ticks: {
+                        beginAtZero: true
+                    }
+                }]
+            }
+        }
+    });
+}
 
 var myChart = new Chart(ctx, { 
     type: 'line',

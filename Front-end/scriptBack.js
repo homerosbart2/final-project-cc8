@@ -2,6 +2,8 @@ let platforms = {};
 let colorCount = 0;
 
 var modifyId = null;
+var search_id_plat = null;
+var search_id_hw = null;
 
 const refresh = document.querySelector('#refresh');
 const agregarNuevo = document.querySelector('#agregarNuevo');
@@ -78,7 +80,7 @@ function hardwareContainer(id) {
 							<p class="card--text ">${type}</p>
 						</div>
 						<button class="flip-turn-back">Modificar</button>
-						<button class="btn-consultar"><i class="fas fa-info-circle"></i> </button>
+						<button class="btn-consultar" onclick="showModal(${id},'${idHW}')"><i class="fas fa-info-circle"></i></button>
 					</div>
 					<div class="flip-card-back">
 						${botonText}
@@ -139,7 +141,6 @@ function consultarHardware(id) {
 				platforms[platId]['hardware'] = respuestaHardware[platId]['hardware'];
 			}
 			document.querySelector(`#platContainer-${id}`).classList.remove('loading');
-			loadFlipButton();
 		}
 	}
 
@@ -202,6 +203,53 @@ function changeHardware(idPlat, idHW){
 		}
 	}
 	
+}
+
+function search(){
+	if(search_id_hw != null && search_id_plat != null){
+		let fechaFinish = document.querySelector("#fecha-finish").value;
+		let fechaStart = document.querySelector("#fecha-start").value;
+		let horaFinish = document.querySelector("#hora-finish").value;
+		let horaStart = document.querySelector("#hora-start").value;
+		if(fechaFinish != "" && fechaStart != "" && horaFinish != "" && horaStart != ""){
+			if(horaFinish.lenth < 6) horaFinish += ":00";
+			if(horaStart.lenth < 6) horaStart += ":00";
+			let fecha = new Date().toISOString();
+			let startDateTime = fechaStart+"T"+horaStart+".000Z";
+			let finishDateTime = fechaFinish+"T"+horaFinish+".000Z";
+			
+			let http = new XMLHttpRequest();
+			let url  = 'searchHW.php';
+			let params = `idPlat=${search_id_plat}&idHW=${search_id_hw}&fecha=${fecha}&start=${startDateTime}&finish=${finishDateTime}`;
+
+			http.onreadystatechange = () => {
+				if(http.readyState === XMLHttpRequest.DONE) {
+					try {
+						console.log(http.responseText);
+						let respuesta = JSON.parse(http.responseText);
+						let data = respuesta.data;
+						let fechas = [];
+						let datos = [];
+						let i = 0;
+						for(let fecha in data){
+							fechas.push(fecha);
+							datos.push({
+								x:i++,
+								y:data[fecha].sensor
+							});
+						}
+						createNewChart(fechas, datos);
+					} catch (error) {
+						
+					}
+				}
+			}
+
+			http.open("POST", url, true);
+			http.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
+			http.send(params);
+		}
+	}
 }
 
 agregarNuevo.addEventListener('click', () => {
