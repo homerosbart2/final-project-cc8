@@ -9,6 +9,8 @@ public class FrontendRequest {
     public String url;
     public String date;
     public Search search;
+    public Create create;
+    public Update update;
     private Object change;
     public Hardware[] hardware;
 
@@ -67,4 +69,41 @@ class HardwareParams {
     public int freq;
     public String text;
     public String tag;
+}
+
+class Create {
+    public Condition condition;
+    public Consequence consequence;
+    public Consequence alternative;
+}
+
+class Update extends Create {
+    public String id;
+}
+
+class Condition {
+    public Left left;
+    public String operator;
+    public Right right;
+}
+
+class Consequence {
+    public String url;
+    public String id;
+    public boolean status;
+    public int freq;
+    public String text;
+}
+
+class Left {
+    public String url;
+    public String id;
+    public int freq;
+}
+
+class Right {
+    public int sensor;
+    public boolean status;
+    public int freq;
+    public String text;
 }
