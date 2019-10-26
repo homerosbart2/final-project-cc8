@@ -31,7 +31,6 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.Properties;
 
-import org.omg.CORBA.UNKNOWN;
 import org.sqlite.SQLiteConnection;
 
 import com.google.gson.Gson;
@@ -333,7 +332,8 @@ class Handler implements Runnable {
                     byte[] fileData = Files.readAllBytes(file.toPath());
                     contentLength = fileData.length;
                     out.println("HTTP/1.1 200 OK");
-                    out.println("Server: MeshServer");
+                    out.println("Access-Control-Allow-Origin: *");
+                    out.println("Server: SGPlatformServer");
                     out.println("Date: " + new Date());
                     out.println("Content-type: " + contentType);
                     out.println("Content-length: " + contentLength);
@@ -394,7 +394,9 @@ class Handler implements Runnable {
                     "}";
 
                     out.println("HTTP/1.1 200 OK");
-                    out.println("Server: MeshServer");
+                    out.println("Access-Control-Allow-Origin: *");
+                    out.println("Access-Control-Allow-Methods: POST, GET, OPTIONS");
+                    out.println("Server: SGPlatformServer");
                     out.println("Date: " + new Date());
                     out.println("Content-type: " + contentType);
                     out.println("Content-length: " + response.length());
@@ -406,7 +408,9 @@ class Handler implements Runnable {
                         byte[] fileData = Files.readAllBytes(file.toPath());
                         contentLength = fileData.length;
                         out.println("HTTP/1.1 200 OK");
-                        out.println("Server: MeshServer");
+                        out.println("Access-Control-Allow-Origin: *");
+                        out.println("Access-Control-Allow-Methods: POST, GET, OPTIONS");
+                        out.println("Server: SGPlatformServer");
                         out.println("Date: " + new Date());
                         out.println("Content-type: " + contentType);
                         out.println("Content-length: " + contentLength);
@@ -414,7 +418,9 @@ class Handler implements Runnable {
                         bufferFileOut.write(fileData);
                     }else{
                         out.println("HTTP/1.1 404 File Not Found");
-                        out.println("Server: MeshServer");
+                        out.println("Access-Control-Allow-Origin: *");
+                        out.println("Access-Control-Allow-Methods: POST, GET, OPTIONS");
+                        out.println("Server: SGPlatformServer");
                         out.println("Date: " + new Date());
                         out.println();
                     }
@@ -582,15 +588,30 @@ class Handler implements Runnable {
                 }
                 response += "}";
                 out.println("HTTP/1.1 200 OK");
+                out.println("Access-Control-Allow-Origin: *");
+                out.println("Access-Control-Allow-Methods: POST, GET, OPTIONS");
+                out.println("Access-Control-Allow-Headers: Content-Type, Content-Language, Accept, Accept-Language");
                 out.println("Content-Type: application/json");
                 out.println("Content-Length:" + response.length());
                 out.println();
                 out.println(response);
             } catch (SQLException e) {
                 System.out.println(e);
+            } else if (method.equals("OPTIONS")) {
+                out.println("HTTP/1.1 200 OK");
+                out.println("Access-Control-Allow-Origin: *");
+                out.println("Access-Control-Allow-Methods: POST, GET, OPTIONS");
+                out.println("Access-Control-Allow-Headers: Content-Type, Content-Language, Accept, Accept-Language");
+                out.println("Server: SGPlatformServer");
+                out.println("Date: " + new Date());
+                out.println("Content-Length: 0");
+                out.println();
             } else try {
                 out.println("HTTP/1.1 501 Not Implemented");
-                out.println("Server: MeshServer");
+                out.println("Access-Control-Allow-Origin: *");
+                out.println("Access-Control-Allow-Methods: POST, GET, OPTIONS");
+                out.println("Access-Control-Allow-Headers: Content-Type, Content-Language, Accept, Accept-Language");
+                out.println("Server: SGPlatformServer");
                 out.println("Date: " + new Date());
                 out.println();
             }catch(Exception e){}
