@@ -1,43 +1,124 @@
-var ctx = document.querySelector('#myChart');
-var ctx2 = document.querySelector('#myChart2');
-var ctx3 = document.querySelector('#myChart3');
+var graficas = [
+    document.querySelector('#myChart'),
+    document.querySelector('#myChart2'),
+    document.querySelector('#myChart3')
+]
+var myChart;
+var myChart2;
+var myChart3;
 
-function createNewChart(labels, data){
-    myChart = new Chart(ctx, {
-        type: 'line',
-        data: {
-            labels: labels,
-            datasets: [{
-                label: 'Datos',
-                data: data,
-                responsive: true,
-                lineTension: 0.2,
-                pointStyle: 'circle',
-                pointRadius: 5,
-                backgroundColor: 'rgba(54, 162, 235, 0.3)',
-                pointBackgroundColor: 'rgba(54, 162, 235, 1)',
-                borderColor: '#ffdde1',
-                borderWidth: 3,
-                pointHoverBorderWidth: 8,
-            }]
-        },
-        options: {
-            scales: {
-                yAxes: [{
-                    ticks: {
-                        beginAtZero: true
-                    }
-                }],
-                xAxes: [{
-                    ticks: {
-                        beginAtZero: true
-                    }
+function createNewChart(labels, sensor, freq, status){
+    let contenedor = 0;
+    if(myChart) myChart.destroy();
+    if(sensor){
+        myChart = new Chart(graficas[contenedor++], {
+            type: 'line',
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: 'Sensor',
+                    data: sensor,
+                    responsive: true,
+                    lineTension: 0.2,
+                    pointStyle: 'circle',
+                    pointRadius: 5,
+                    backgroundColor: 'rgba(54, 162, 235, 0.3)',
+                    pointBackgroundColor: 'rgba(54, 162, 235, 1)',
+                    borderColor: '#ffdde1',
+                    borderWidth: 3,
+                    pointHoverBorderWidth: 8,
                 }]
+            },
+            options: {
+                scales: {
+                    yAxes: [{
+                        ticks: {
+                            beginAtZero: true
+                        }
+                    }],
+                    xAxes: [{
+                        ticks: {
+                            beginAtZero: true
+                        }
+                    }]
+                }
             }
-        }
-    });
+        });
+    }
+    if(myChart2) myChart2.destroy();
+    if(freq){
+        myChart2 = new Chart(graficas[contenedor++], {
+            type: 'line',
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: 'Frecuencia',
+                    data: freq,
+                    responsive: true,
+                    lineTension: 0.2,
+                    pointStyle: 'circle',
+                    pointRadius: 5,
+                    backgroundColor: 'rgba(54, 162, 235, 0.3)',
+                    pointBackgroundColor: 'rgba(54, 162, 235, 1)',
+                    borderColor: '#ffdde1',
+                    borderWidth: 3,
+                    pointHoverBorderWidth: 8,
+                }]
+            },
+            options: {
+                scales: {
+                    yAxes: [{
+                        ticks: {
+                            beginAtZero: true
+                        }
+                    }],
+                    xAxes: [{
+                        ticks: {
+                            beginAtZero: true
+                        }
+                    }]
+                }
+            }
+        });
+    }
+    if(myChart3) myChart3.destroy();
+    if(status){
+        myChart3 = new Chart(graficas[contenedor++], {
+            type: 'bar',
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: 'Status',
+                    data: status,
+                    responsive: true,
+                    lineTension: 0.2,
+                    pointStyle: 'circle',
+                    pointRadius: 5,
+                    backgroundColor: 'rgba(54, 162, 235, 0.3)',
+                    pointBackgroundColor: 'rgba(54, 162, 235, 1)',
+                    borderColor: '#ffdde1',
+                    borderWidth: 3,
+                    pointHoverBorderWidth: 8,
+                }]
+            },
+            options: {
+                scales: {
+                    yAxes: [{
+                        ticks: {
+                            beginAtZero: true
+                        }
+                    }],
+                    xAxes: [{
+                        ticks: {
+                            beginAtZero: true
+                        }
+                    }]
+                }
+            }
+        });
+    }
 }
-var myChart2 = new Chart(ctx2, { 
+/* var myChart2 = new Chart(ctx2, { 
     type: 'line',
     data: {
         labels: [...Array(9).keys()],
@@ -247,4 +328,4 @@ var myChart = new Chart(ctx, {
             }]
         }
     }
-});
+}); */

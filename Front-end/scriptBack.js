@@ -212,8 +212,8 @@ function search(){
 		let horaFinish = document.querySelector("#hora-finish").value;
 		let horaStart = document.querySelector("#hora-start").value;
 		if(fechaFinish != "" && fechaStart != "" && horaFinish != "" && horaStart != ""){
-			if(horaFinish.lenth < 6) horaFinish += ":00";
-			if(horaStart.lenth < 6) horaStart += ":00";
+			if(horaFinish.length < 6) horaFinish += ":00";
+			if(horaStart.length < 6) horaStart += ":00";
 			let fecha = new Date().toISOString();
 			let startDateTime = fechaStart+"T"+horaStart+".000Z";
 			let finishDateTime = fechaFinish+"T"+horaFinish+".000Z";
@@ -229,19 +229,33 @@ function search(){
 						let respuesta = JSON.parse(http.responseText);
 						let data = respuesta.data;
 						let fechas = [];
-						let datos = [];
+						let sensor = undefined;
+						let freq = [];
+						let status = undefined;
+						if(platforms[search_id_plat].hardware[search_id_hw].type == "input")
+							sensor = [];
+						else
+							status = [];
 						let i = 0;
 						for(let fecha in data){
 							fechas.push(fecha);
-							datos.push({
-								x:i++,
-								y:data[fecha].sensor
+							if(sensor)
+								sensor.push({
+									x:i,
+									y:data[fecha].sensor
+								});
+							if(status)
+								status.push({
+									x:i,
+									y:data[fecha].status
+								});
+							freq.push({
+								x:i,
+								y:data[fecha].freq
 							});
 						}
-						createNewChart(fechas, datos);
-					} catch (error) {
-						
-					}
+						createNewChart(fechas, sensor, freq, status);
+					} catch (error) {}
 				}
 			}
 
