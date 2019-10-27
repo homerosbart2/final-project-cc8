@@ -31,10 +31,36 @@ const renderSecondPage = () => {
                     <input type="radio" name="hardware" id="hard-2" value="hard" />
                     <label class= "plt-label" for="hard-2">Hardware</label>
                 </div>
+                <div class = "event-hardware-cmp-list">
+                    <input type="radio" name="cmp" id="cmp-1" value="hard" checked/>
+                    <label class= "cmp-label" for="cmp-1"><i class="fa fa-equals"></i></label>
+
+                    <input type="radio" name="cmp" id="cmp-2" value="hard" />
+                    <label class= "cmp-label" for="cmp-2"><i class="fa fa-not-equal"></i></i></label>
+
+                    <input type="radio" name="cmp" id="cmp-3" value="hard" />
+                    <label class= "cmp-label" for="cmp-3"><i class="fa fa-greater-than"></i></i></label>
+
+                    <input type="radio" name="cmp" id="cmp-4" value="hard" />
+                    <label class= "cmp-label" for="cmp-4"><i class="fa fa-less-than"></i></i></label>
+
+                    <input type="radio" name="cmp" id="cmp-5" value="hard" />
+                    <label class= "cmp-label" for="cmp-5"><i class="fa fa-greater-than-equal"></i></label>
+
+                    <input type="radio" name="cmp" id="cmp-6" value="hard" />
+                    <label class= "cmp-label" for="cmp-6"><i class="fa fa-less-than-equal"></i></label> 
+                </div>
                 <div class = "event-hardware-cmp">
                     <input class = "freq-value" type = "number" placeholder = "Frecuencia" min = "0">
                     <input class = "freq-value" type = "number" placeholder = "Valor del Sensor" min = "0">
                     <input class = "freq-value" type = "text" placeholder = "Frecuencia">
+                    <span class="switch-container">
+                    <input type="checkbox" id="status">
+                    <label for="status">
+                        <span class="switch-text"></span>
+                        <span class="indicator"></span>
+                    </label>
+                </span>
                 </div>
             </div>`;
 }
@@ -42,7 +68,7 @@ const renderSecondPage = () => {
 const renderThirdPage = () => {
     return `<div class = "event-hardware">
                 <div class = "event-hardware-list">
-                    <input type="radio" name="theb" id="then-1" value="hard" checked />
+                    <input type="radio" name="then" id="then-1" value="hard" checked />
                     <label class= "plt-label" for="then-1">Hardware</label>
                       
                     <input type="radio" name="then" id="then-2" value="hard" />
@@ -52,6 +78,13 @@ const renderThirdPage = () => {
                     <input class = "freq-value" type = "number" placeholder = "Frecuencia" min = "0">
                     <input class = "freq-value" type = "number" placeholder = "Valor del Sensor" min = "0">
                     <input class = "freq-value" type = "text" placeholder = "Frecuencia">
+                    <span class="switch-container">
+                    <input type="checkbox" id="status">
+                    <label for="status">
+                        <span class="switch-text"></span>
+                        <span class="indicator"></span>
+                    </label>
+                </span>
                 </div>
             </div>`;
 }
@@ -68,6 +101,13 @@ const renderFourPage = () => {
                     <input class = "freq-value" type = "number" placeholder = "Frecuencia" min = "0">
                     <input class = "freq-value" type = "number" placeholder = "Valor del Sensor" min = "0">
                     <input class = "freq-value" type = "text" placeholder = "Frecuencia">
+                    <span class="switch-container">
+                    <input type="checkbox" id="status">
+                    <label for="status">
+                        <span class="switch-text"></span>
+                        <span class="indicator"></span>
+                    </label>
+                </span>
                 </div>
             </div>`;
 }

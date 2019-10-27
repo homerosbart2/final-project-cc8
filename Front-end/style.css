@@ -351,6 +351,19 @@ input:focus {
   transition: 0.3s ease;
 }
 
+.page-event{
+  background: #ebebeb;
+  width: 100vw;
+  height: 100vh;
+  display: flex;
+  position: fixed;
+  margin-left: -100%;
+  transition: 0.3s ease;
+}
+
+.page-event.shown{
+  margin-left: 0;
+}
 .page-plt.shown {
   margin-left: 0;
 }
@@ -633,4 +646,20 @@ input:focus {
 
 ::-webkit-scrollbar-thumb:hover {
   background: #555; 
+}
+.regresar {
+  outline: none;
+  cursor: pointer;
+  margin-top: 10px;
+  border: none;
+  background: linear-gradient(to right, #fd746c, #ff9068);
+  border-radius: 12px;
+  width: 118px;
+  height: 58px;
+  transition: 0.3 ease;
+}
+
+.regresar:hover {
+  -webkit-transform: scale(0.97);
+          transform: scale(0.97);
 }

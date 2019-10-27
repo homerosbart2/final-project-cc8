@@ -154,16 +154,34 @@ input[type="radio"] {
     background-color: #454545;
     color: white;
     padding: 5px 10px;
-    border-radius: 3px;
+    border-radius: 8px;
     padding-top: 40px;
     transition: 0.3s ease;
     margin-top: 7px;
 }
 
+.cmp-label {
+    display: table-cell;
+    vertical-align: middle;
+    text-align: center;
+    cursor: pointer;
+    width: 50px;
+    height: 27px;
+    max-width: 50px;
+    max-height: 27px;
+    background-color: #454545;
+    color: white; 
+    border-radius: 8px; 
+    transition: 0.3s ease;
+    padding-top: 10px;
+    margin-top: 7px;
+}
+
 input[type="radio"]:checked + .plt-label {
-    background-color: #ee9ca7;
-    width: 145px;
-    height: 50px;
+    background-color: #ee9ca7; 
+}
+input[type="radio"]:checked + .cmp-label {
+    background-color: #ee9ca7; 
 }
 
 .previous{
@@ -206,7 +224,7 @@ input[type="radio"]:checked + .plt-label {
     margin-left: auto;
     margin-right: auto;
     margin-top: 1rem;
-    height: 200px;
+    height: 180px;
     max-width: 780px;
     max-height: 350px;
     display: flex;
@@ -221,14 +239,29 @@ input[type="radio"]:checked + .plt-label {
     margin-top: 1rem;
     width: 780px;
     max-width: 780px;
-    max-height: 150px;
+    max-height: 250px;
     display: flex;
     flex-wrap: wrap;
     align-items: center;
     justify-content: center;
     position: relative;
+    margin-top: 10px;
 }
 
+.event-hardware-cmp-list{
+    margin-left: auto;
+    margin-right: auto;
+    margin-top: 1rem;
+    width: 780px;
+    max-width: 780px;
+    max-height: 40px;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+    position: relative; 
+    margin-bottom: 10px;
+}
 .freq-value {
     border: 1px solid #ffafbd;
     border-radius: 8px;
@@ -236,6 +269,6 @@ input[type="radio"]:checked + .plt-label {
     width: 130px;
     height: 35px;
     outline: none;  
-    margin-left: 10px;
+    margin-right: 10px;
     text-align: center;
 }
