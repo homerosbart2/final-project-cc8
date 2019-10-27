@@ -1,53 +1,50 @@
 // Mi idea es que definamos funciones para cada pagina que 
 // necesitemos y que retornen la estructura HTML como string.
+const getHardwareString = (inputName) => {
+    let hardwareInputs = "";
+    for(const platId in platforms){
+        let hardwareList = platforms[platId].hardware;
+        for(const hwId in hardwareList){
+            hardwareInputs += `<input type="radio" name="${inputName}" id="hard-${hwId}-${inputName}" value="${platId}-${hwId}"/>
+            <label class= "plt-label" for="hard-${hwId}-${inputName}">${platforms[platId].nombre}.${hardwareList[hwId].tag}</label>`;
+        }
+    }
+    return hardwareInputs;
+}
+
 const renderFirstPage = () => {
+    let platInputs = "";
+    for (const platId in platforms) {
+        platInputs += `<input type="radio" name="plataforma" id="plt-${platId}" value="${platId}"/>
+                        <label class= "plt-label" for="plt-${platId}">${platforms[platId].nombre}</label>\n`;
+    }
     return `<div class = "plt-cont">
-                <input type="radio" name="plataforma" id="plt-1" value="plat" checked />
-                <label class= "plt-label" for="plt-1">Plataforma</label>
-                  
-                <input type="radio" name="plataforma" id="plt-2" value="plat" />
-                <label class= "plt-label" for="plt-2">Plataforma</label>
-                  
-                <input type="radio" name="plataforma" id="plt-3" value="plat" />
-                <label class= "plt-label" for="plt-3">Plataforma</label>
-
-                <input type="radio" name="plataforma" id="plt-4" value="plat" />
-                <label class= "plt-label" for="plt-4">Plataforma</label>
-
-                <input type="radio" name="plataforma" id="plt-5" value="plat" />
-                <label class= "plt-label" for="plt-5">Plataforma</label>
-
-                <input type="radio" name="plataforma" id="plt-6" value="plat" />
-                <label class= "plt-label" for="plt-6">Plataforma</label>
+               ${platInputs}
             </div>`;
 }
 
 const renderSecondPage = () => {
     return `<div class = "event-hardware">
                 <div class = "event-hardware-list">
-                    <input type="radio" name="hardware" id="hard-1" value="hard" checked />
-                    <label class= "plt-label" for="hard-1">Hardware</label>
-                      
-                    <input type="radio" name="hardware" id="hard-2" value="hard" />
-                    <label class= "plt-label" for="hard-2">Hardware</label>
+                    ${getHardwareString('hardware')}
                 </div>
                 <div class = "event-hardware-cmp-list">
-                    <input type="radio" name="cmp" id="cmp-1" value="hard" checked/>
+                    <input type="radio" name="cmp" id="cmp-1" value="=" checked/>
                     <label class= "cmp-label" for="cmp-1"><i class="fa fa-equals"></i></label>
 
-                    <input type="radio" name="cmp" id="cmp-2" value="hard" />
+                    <input type="radio" name="cmp" id="cmp-2" value="!=" />
                     <label class= "cmp-label" for="cmp-2"><i class="fa fa-not-equal"></i></i></label>
 
-                    <input type="radio" name="cmp" id="cmp-3" value="hard" />
+                    <input type="radio" name="cmp" id="cmp-3" value=">" />
                     <label class= "cmp-label" for="cmp-3"><i class="fa fa-greater-than"></i></i></label>
 
-                    <input type="radio" name="cmp" id="cmp-4" value="hard" />
+                    <input type="radio" name="cmp" id="cmp-4" value="<" />
                     <label class= "cmp-label" for="cmp-4"><i class="fa fa-less-than"></i></i></label>
 
-                    <input type="radio" name="cmp" id="cmp-5" value="hard" />
+                    <input type="radio" name="cmp" id="cmp-5" value=">=" />
                     <label class= "cmp-label" for="cmp-5"><i class="fa fa-greater-than-equal"></i></label>
 
-                    <input type="radio" name="cmp" id="cmp-6" value="hard" />
+                    <input type="radio" name="cmp" id="cmp-6" value="<=" />
                     <label class= "cmp-label" for="cmp-6"><i class="fa fa-less-than-equal"></i></label> 
                 </div>
                 <div class = "event-hardware-cmp">
@@ -55,8 +52,8 @@ const renderSecondPage = () => {
                     <input class = "freq-value" type = "number" placeholder = "Valor del Sensor" min = "0">
                     <input class = "freq-value" type = "text" placeholder = "Frecuencia">
                     <span class="switch-container">
-                    <input type="checkbox" id="status">
-                    <label for="status">
+                    <input type="checkbox" id="status-if">
+                    <label for="status-if">
                         <span class="switch-text"></span>
                         <span class="indicator"></span>
                     </label>
@@ -68,19 +65,15 @@ const renderSecondPage = () => {
 const renderThirdPage = () => {
     return `<div class = "event-hardware">
                 <div class = "event-hardware-list">
-                    <input type="radio" name="then" id="then-1" value="hard" checked />
-                    <label class= "plt-label" for="then-1">Hardware</label>
-                      
-                    <input type="radio" name="then" id="then-2" value="hard" />
-                    <label class= "plt-label" for="then-2">Hardware</label>
+                    ${getHardwareString('then')}
                 </div>
                 <div class = "event-hardware-cmp">
                     <input class = "freq-value" type = "number" placeholder = "Frecuencia" min = "0">
                     <input class = "freq-value" type = "number" placeholder = "Valor del Sensor" min = "0">
                     <input class = "freq-value" type = "text" placeholder = "Frecuencia">
                     <span class="switch-container">
-                    <input type="checkbox" id="status">
-                    <label for="status">
+                    <input type="checkbox" id="status-then">
+                    <label for="status-then">
                         <span class="switch-text"></span>
                         <span class="indicator"></span>
                     </label>
@@ -91,19 +84,15 @@ const renderThirdPage = () => {
 const renderFourPage = () => {
     return `<div class = "event-hardware">
                 <div class = "event-hardware-list">
-                    <input type="radio" name="else" id="else-1" value="hard" checked />
-                    <label class= "plt-label" for="else-1">Hardware</label>
-                      
-                    <input type="radio" name="else" id="else-2" value="hard" />
-                    <label class= "plt-label" for="else-2">Hardware</label>
+                    ${getHardwareString('else')}
                 </div>
                 <div class = "event-hardware-cmp">
                     <input class = "freq-value" type = "number" placeholder = "Frecuencia" min = "0">
                     <input class = "freq-value" type = "number" placeholder = "Valor del Sensor" min = "0">
                     <input class = "freq-value" type = "text" placeholder = "Frecuencia">
                     <span class="switch-container">
-                    <input type="checkbox" id="status">
-                    <label for="status">
+                    <input type="checkbox" id="status-else">
+                    <label for="status-else">
                         <span class="switch-text"></span>
                         <span class="indicator"></span>
                     </label>

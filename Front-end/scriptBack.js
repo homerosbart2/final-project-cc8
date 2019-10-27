@@ -1,9 +1,9 @@
-let platforms = {};
-let colorCount = 0;
-
+var platforms = {};
 var modifyId = null;
 var search_id_plat = null;
 var search_id_hw = null;
+
+let colorCount = 0;
 
 const refresh = document.querySelector('#refresh');
 const agregarNuevo = document.querySelector('#agregarNuevo');
@@ -312,6 +312,68 @@ agregarNuevo.addEventListener('click', () => {
 
 	}
 });
+
+function createEvent(){
+	let createPlatId = document.querySelector('input[name="plataforma"]:checked');
+	let ifSelection = document.querySelector('input[name="hardware"]:checked');
+	let thenSelection = document.querySelector('input[name="then"]:checked');
+	let elseSelection = document.querySelector('input[name="else"]:checked');
+	if(createPlatId && ifSelection && thenSelection && elseSelection){
+		ifSelection = ifSelection.value.split("-");
+		thenSelection = thenSelection.value.split("-");
+		elseSelection = elseSelection.value.split("-");
+		createPlatId = createPlatId.value;
+		let if_platId = ifSelection[0];
+		let if_hwId = ifSelection[1];
+		let then_platId = thenSelection[0];
+		let then_hwId = thenSelection[1];
+		let else_platId = elseSelection[0];
+		let else_hwId = elseSelection[1];
+		let condition = document.querySelector('input[name="cmp"]:checked').value;
+		let request = {
+			id: platforms[createPlatId].nombre,
+			url: platforms[createPlatId].ip,
+			puerto: platforms[createPlatId].puerto,
+			date: new Date().toISOString(),
+			create: {
+				if: {
+					left:{
+						url: platforms[if_platId].ip,
+						id: if_hwId,
+						freq: 6000
+					},
+					condition: condition,
+					right: {
+
+					}
+				},
+				then: {
+					url: platforms[then_platId].ip,
+					id: then_hwId
+				},
+				else: {
+					url: platforms[else_platId].ip,
+					id: else_hwId
+				}
+			}
+		}
+		let http = new XMLHttpRequest();
+		let url = 'createEv.php';
+		let params = JSON.stringify(request);
+
+		http.onreadystatechange = () => {
+			if(http.readyState === XMLHttpRequest.DONE) {
+				console.log(http.responseText);
+			}
+		}
+
+		http.open("POST", url, true);
+		http.setRequestHeader('Content-type', 'application/json');
+		http.send(params);
+	}else{
+		console.log("no hay");
+	}
+}
 
 document.onreadystatechange = () => {
 	if (document.readyState == "complete") {

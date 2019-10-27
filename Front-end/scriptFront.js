@@ -48,7 +48,6 @@ back1.addEventListener('click', () => {
 })
 new_events.addEventListener('click', () =>{
 	if (isEventContainerShown) {
-		console.log("hola");
 		eventos.classList.remove('shown');
 		isEventContainerShown = false;
 	}else{
