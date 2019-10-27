@@ -318,5 +318,6 @@ document.onreadystatechange = () => {
 		consultarPlataformas();
 		//consultarHardware();
 		//loadFlipButton();
+		cargarWizard();
 	}
 }

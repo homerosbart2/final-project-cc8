@@ -97,7 +97,7 @@ const pages = [
 // No tenés que entender este código, solo tenés que declarar
 // las funciones y meterlas en el arreglo 'pages' como en el 
 // ejemplo.
-document.onreadystatechange = () => {
+var cargarWizard = () => {
     if (document.readyState === 'complete') {
         const TRANSITION_DURATION = 200;
         let actualPage = 0;
