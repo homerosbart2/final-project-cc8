@@ -121,6 +121,7 @@ function consultarPlataformas() {
 				}
 				consultarHardware(platId);
 			}
+			cargarWizard();
 		}
 	}
 
@@ -314,22 +315,21 @@ agregarNuevo.addEventListener('click', () => {
 });
 
 function createEvent(){
-	let createPlatId = document.querySelector('input[name="plataforma"]:checked');
-	let ifSelection = document.querySelector('input[name="hardware"]:checked');
-	let thenSelection = document.querySelector('input[name="then"]:checked');
-	let elseSelection = document.querySelector('input[name="else"]:checked');
-	if(createPlatId && ifSelection && thenSelection && elseSelection){
-		ifSelection = ifSelection.value.split("-");
-		thenSelection = thenSelection.value.split("-");
-		elseSelection = elseSelection.value.split("-");
-		createPlatId = createPlatId.value;
-		let if_platId = ifSelection[0];
-		let if_hwId = ifSelection[1];
+	let createPlatId = nuevoEvento.createPlatId;
+	let condicionHardware = nuevoEvento.condicionHardware;
+	let thenSelection = nuevoEvento.thenHardware;
+	let elseSelection = nuevoEvento.elseSelection;
+	let condition = nuevoEvento.condicion;
+	if(createPlatId && thenSelection && elseSelection && condicionHardware && condition){
+		condicionHardware = condicionHardware.split("-");
+		thenSelection = thenSelection.split("-");
+		elseSelection = elseSelection.split("-");
+		let if_platId = condicionHardware[0];
+		let if_hwId = condicionHardware[1];
 		let then_platId = thenSelection[0];
 		let then_hwId = thenSelection[1];
 		let else_platId = elseSelection[0];
 		let else_hwId = elseSelection[1];
-		let condition = document.querySelector('input[name="cmp"]:checked').value;
 		let request = {
 			id: platforms[createPlatId].nombre,
 			url: platforms[createPlatId].ip,
@@ -380,6 +380,6 @@ document.onreadystatechange = () => {
 		consultarPlataformas();
 		//consultarHardware();
 		//loadFlipButton();
-		cargarWizard();
+		//cargarWizard();
 	}
 }
