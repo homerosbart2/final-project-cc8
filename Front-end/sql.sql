@@ -31,5 +31,6 @@ CREATE TABLE "eventos" (
 	"else_id" varchar NOT NULL,
 	"else_status" boolean,
 	"else_freq" int,
-	"else_text" varchar
+	"else_text" varchar,
+	PRIMARY KEY("id", "idplataforma")
 );

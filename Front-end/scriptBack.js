@@ -383,6 +383,19 @@ function createEvent(){
 		http.onreadystatechange = () => {
 			if(http.readyState === XMLHttpRequest.DONE) {
 				console.log(http.responseText);
+				try{
+					let respuesta = JSON.parse(http.responseText);
+					if(respuesta.status && respuesta.status == "OK"){
+						console.log("Evento creado Exitosamente");
+						bodyContainer.classList.add('shown');
+						eventos.classList.remove('shown');
+						isEventContainerShown = false;
+					}else{
+						console.log("Ocurrio un error al crear el evento");
+					}
+				}catch(error){
+					console.log("error");
+				}
 			}
 		}
 

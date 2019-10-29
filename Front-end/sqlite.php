@@ -145,8 +145,6 @@ function insertEvento($db, $id, $idPlat, $json_evento){
         {$else_text}
     );";
 
-    echo $sql;
-
     $db->exec($sql);
  }
 
