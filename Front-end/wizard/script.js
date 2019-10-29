@@ -224,7 +224,13 @@ var cargarWizard = () => {
                     }, TRANSITION_DURATION);
                 }
             }else{
-                //if(actualPage == pages.length - 1) createEvent();
+                if(actualPage == pages.length - 1){
+                    if(!saveEvent(actualPage)){
+                        isTransitioning = false;
+                        return;
+                    }
+                    createEvent();
+                }
             }
         }
 
@@ -284,7 +290,14 @@ const saveEvent = (actualPage) => {
                     if(sensor){
                         control = true;
                         nuevoEvento["hardwareSensor"] = sensor;
-                    }else delete nuevoEvento["hardwareSensor"];
+                    }else {
+                        delete nuevoEvento["hardwareSensor"];
+                        console.log("borre el sensor");
+                    }
+                    if(control){
+                        delete nuevoEvento["hardwareText"];
+                        delete nuevoEvento["hardwareStatus"];
+                    }
                 }else{
                     control = true;
                     let text = document.querySelector('#text-hardware').value;
@@ -292,6 +305,7 @@ const saveEvent = (actualPage) => {
                         nuevoEvento["hardwareText"] = text;
                     }else delete nuevoEvento["hardwareText"];
                     nuevoEvento["hardwareStatus"] = document.querySelector("#status-hardware").checked;
+                    delete nuevoEvento["hardwareSensor"];
                 }
 
                 if(control){
@@ -317,6 +331,11 @@ const saveEvent = (actualPage) => {
                         nuevoEvento["thenText"] = text;
                     }else delete nuevoEvento["thenText"];
                     nuevoEvento["thenStatus"] = document.querySelector("#status-then").checked;
+                }else{
+                    if(control){
+                        delete nuevoEvento["thenText"];
+                        delete nuevoEvento["thenStatus"];
+                    }
                 }
 
                 if(control) nuevoEvento["thenHardware"] = thenSelection.value;
@@ -332,8 +351,8 @@ const saveEvent = (actualPage) => {
                 let freq = document.querySelector('#freq-else').value;
                 if(freq){
                     control = true;
-                    nuevoEvento["thenFreq"] = freq;
-                }else delete nuevoEvento["thenFreq"];
+                    nuevoEvento["elseFreq"] = freq;
+                }else delete nuevoEvento["elseFreq"];
 
                 if(platforms[splited[0]].hardware[splited[1]].type == "output"){
                     control = true;
@@ -342,6 +361,11 @@ const saveEvent = (actualPage) => {
                         nuevoEvento["elseText"] = text;
                     }else delete nuevoEvento["elseText"];
                     nuevoEvento["elseStatus"] = document.querySelector("#status-else").checked;
+                }else{
+                    if(control){
+                        delete nuevoEvento["elseText"];
+                        delete nuevoEvento["elseStatus"];
+                    }
                 }
 
                 if(control) nuevoEvento["elseHardware"] = elseSelection.value;
@@ -379,7 +403,6 @@ const updateInputs = (platId, hwId, inputName) => {
         </span>`;
     }
     contenedor.innerHTML = inputs;
-    console.log("hola k ase");
     if(isInput){
         if(nuevoEvento[`${inputName}Freq`])
             document.querySelector(`#freq-${inputName}`).value = nuevoEvento[`${inputName}Freq`];

@@ -4,6 +4,7 @@ var search_id_plat = null;
 var search_id_hw = null;
 
 let colorCount = 0;
+let firstRefresh = true;
 
 const refresh = document.querySelector('#refresh');
 const agregarNuevo = document.querySelector('#agregarNuevo');
@@ -121,7 +122,10 @@ function consultarPlataformas() {
 				}
 				consultarHardware(platId);
 			}
-			cargarWizard();
+			if(firstRefresh){
+				cargarWizard();
+				firstRefresh = false;
+			}
 		}
 	}
 
@@ -316,9 +320,9 @@ agregarNuevo.addEventListener('click', () => {
 
 function createEvent(){
 	let createPlatId = nuevoEvento.createPlatId;
-	let condicionHardware = nuevoEvento.condicionHardware;
+	let condicionHardware = nuevoEvento.hardwareHardware;
 	let thenSelection = nuevoEvento.thenHardware;
-	let elseSelection = nuevoEvento.elseSelection;
+	let elseSelection = nuevoEvento.elseHardware;
 	let condition = nuevoEvento.condicion;
 	if(createPlatId && thenSelection && elseSelection && condicionHardware && condition){
 		condicionHardware = condicionHardware.split("-");
@@ -331,6 +335,7 @@ function createEvent(){
 		let else_platId = elseSelection[0];
 		let else_hwId = elseSelection[1];
 		let request = {
+			idPlat: createPlatId,
 			id: platforms[createPlatId].nombre,
 			url: platforms[createPlatId].ip,
 			puerto: platforms[createPlatId].puerto,
@@ -343,9 +348,7 @@ function createEvent(){
 						freq: 6000
 					},
 					condition: condition,
-					right: {
-
-					}
+					right: {}
 				},
 				then: {
 					url: platforms[then_platId].ip,
@@ -357,6 +360,22 @@ function createEvent(){
 				}
 			}
 		}
+		if(nuevoEvento.hardwareSensor) request.create.if.right.sensor = nuevoEvento.hardwareSensor;
+		if(nuevoEvento.hardwareFreq) request.create.if.right.freq = nuevoEvento.hardwareFreq;
+		if(nuevoEvento.hardwareStatus != undefined && nuevoEvento.hardwareStatus != null)
+			request.create.if.right.status = nuevoEvento.hardwareStatus;
+		if(nuevoEvento.hardwareText) request.create.if.right.text = nuevoEvento.hardwareText;
+		
+		if(nuevoEvento.thenFreq) request.create.then.freq = nuevoEvento.thenFreq;
+		if(nuevoEvento.thenStatus != undefined && nuevoEvento.thenStatus != null)
+			request.create.then.status = nuevoEvento.thenStatus;
+		if(nuevoEvento.thenText) request.create.then.text = nuevoEvento.thenText;
+
+		if(nuevoEvento.elseFreq) request.create.else.freq = nuevoEvento.elseFreq;
+		if(nuevoEvento.elseStatus != undefined && nuevoEvento.elseStatus != null)
+			request.create.else.status = nuevoEvento.elseStatus;
+		if(nuevoEvento.elseText) request.create.else.text = nuevoEvento.elseText;
+
 		let http = new XMLHttpRequest();
 		let url = 'createEv.php';
 		let params = JSON.stringify(request);
