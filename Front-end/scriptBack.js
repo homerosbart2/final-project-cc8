@@ -4,6 +4,7 @@ var search_id_plat = null;
 var search_id_hw = null;
 
 let colorCount = 0;
+let firstRefresh = true;
 
 const refresh = document.querySelector('#refresh');
 const agregarNuevo = document.querySelector('#agregarNuevo');
@@ -120,6 +121,10 @@ function consultarPlataformas() {
 					platforms[platId] = respuestaPlataformas[platId];
 				}
 				consultarHardware(platId);
+			}
+			if(firstRefresh){
+				cargarWizard();
+				firstRefresh = false;
 			}
 		}
 	}
@@ -314,23 +319,23 @@ agregarNuevo.addEventListener('click', () => {
 });
 
 function createEvent(){
-	let createPlatId = document.querySelector('input[name="plataforma"]:checked');
-	let ifSelection = document.querySelector('input[name="hardware"]:checked');
-	let thenSelection = document.querySelector('input[name="then"]:checked');
-	let elseSelection = document.querySelector('input[name="else"]:checked');
-	if(createPlatId && ifSelection && thenSelection && elseSelection){
-		ifSelection = ifSelection.value.split("-");
-		thenSelection = thenSelection.value.split("-");
-		elseSelection = elseSelection.value.split("-");
-		createPlatId = createPlatId.value;
-		let if_platId = ifSelection[0];
-		let if_hwId = ifSelection[1];
+	let createPlatId = nuevoEvento.createPlatId;
+	let condicionHardware = nuevoEvento.hardwareHardware;
+	let thenSelection = nuevoEvento.thenHardware;
+	let elseSelection = nuevoEvento.elseHardware;
+	let condition = nuevoEvento.condicion;
+	if(createPlatId && thenSelection && elseSelection && condicionHardware && condition){
+		condicionHardware = condicionHardware.split("-");
+		thenSelection = thenSelection.split("-");
+		elseSelection = elseSelection.split("-");
+		let if_platId = condicionHardware[0];
+		let if_hwId = condicionHardware[1];
 		let then_platId = thenSelection[0];
 		let then_hwId = thenSelection[1];
 		let else_platId = elseSelection[0];
 		let else_hwId = elseSelection[1];
-		let condition = document.querySelector('input[name="cmp"]:checked').value;
 		let request = {
+			idPlat: createPlatId,
 			id: platforms[createPlatId].nombre,
 			url: platforms[createPlatId].ip,
 			puerto: platforms[createPlatId].puerto,
@@ -343,9 +348,7 @@ function createEvent(){
 						freq: 6000
 					},
 					condition: condition,
-					right: {
-
-					}
+					right: {}
 				},
 				then: {
 					url: platforms[then_platId].ip,
@@ -357,6 +360,22 @@ function createEvent(){
 				}
 			}
 		}
+		if(nuevoEvento.hardwareSensor) request.create.if.right.sensor = nuevoEvento.hardwareSensor;
+		if(nuevoEvento.hardwareFreq) request.create.if.right.freq = nuevoEvento.hardwareFreq;
+		if(nuevoEvento.hardwareStatus != undefined && nuevoEvento.hardwareStatus != null)
+			request.create.if.right.status = nuevoEvento.hardwareStatus;
+		if(nuevoEvento.hardwareText) request.create.if.right.text = nuevoEvento.hardwareText;
+		
+		if(nuevoEvento.thenFreq) request.create.then.freq = nuevoEvento.thenFreq;
+		if(nuevoEvento.thenStatus != undefined && nuevoEvento.thenStatus != null)
+			request.create.then.status = nuevoEvento.thenStatus;
+		if(nuevoEvento.thenText) request.create.then.text = nuevoEvento.thenText;
+
+		if(nuevoEvento.elseFreq) request.create.else.freq = nuevoEvento.elseFreq;
+		if(nuevoEvento.elseStatus != undefined && nuevoEvento.elseStatus != null)
+			request.create.else.status = nuevoEvento.elseStatus;
+		if(nuevoEvento.elseText) request.create.else.text = nuevoEvento.elseText;
+
 		let http = new XMLHttpRequest();
 		let url = 'createEv.php';
 		let params = JSON.stringify(request);
@@ -364,6 +383,19 @@ function createEvent(){
 		http.onreadystatechange = () => {
 			if(http.readyState === XMLHttpRequest.DONE) {
 				console.log(http.responseText);
+				try{
+					let respuesta = JSON.parse(http.responseText);
+					if(respuesta.status && respuesta.status == "OK"){
+						console.log("Evento creado Exitosamente");
+						bodyContainer.classList.add('shown');
+						eventos.classList.remove('shown');
+						isEventContainerShown = false;
+					}else{
+						console.log("Ocurrio un error al crear el evento");
+					}
+				}catch(error){
+					console.log("error");
+				}
 			}
 		}
 
@@ -380,6 +412,6 @@ document.onreadystatechange = () => {
 		consultarPlataformas();
 		//consultarHardware();
 		//loadFlipButton();
-		cargarWizard();
+		//cargarWizard();
 	}
 }
