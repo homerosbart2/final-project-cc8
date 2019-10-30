@@ -141,6 +141,7 @@ function consultarHardware(id) {
 
 	http.onreadystatechange = () => {
 		if (http.readyState == XMLHttpRequest.DONE) {
+			console.log(http.responseText);
 			let respuestaHardware = JSON.parse(http.responseText);
 			for (let platId in respuestaHardware) {
 				platforms[platId]['hardware'] = respuestaHardware[platId]['hardware'];
@@ -343,6 +344,7 @@ function createEvent(){
 			create: {
 				if: {
 					left:{
+						platId: if_platId,
 						url: platforms[if_platId].ip,
 						id: if_hwId,
 						freq: 6000
@@ -351,10 +353,12 @@ function createEvent(){
 					right: {}
 				},
 				then: {
+					platId: then_platId,
 					url: platforms[then_platId].ip,
 					id: then_hwId
 				},
 				else: {
+					platId: else_platId,
 					url: platforms[else_platId].ip,
 					id: else_hwId
 				}

@@ -8,7 +8,7 @@ const getHardwareString = (inputName) => {
     for(const platId in platforms){
         let hardwareList = platforms[platId].hardware;
         for(const hwId in hardwareList){
-            hardwareInputs += `<input type="radio" name="${inputName}" id="hard-${hwId}-${inputName}" value="${platId}-${hwId}"`;
+            hardwareInputs += `<input type="radio" name="${inputName}" id="hard-${platId}-${hwId}-${inputName}" value="${platId}-${hwId}"`;
             if(cmp == `${platId}-${hwId}`){
                 hardwareInputs += "checked";
                 rendererInputs = {
@@ -18,7 +18,7 @@ const getHardwareString = (inputName) => {
                 }
             }
             hardwareInputs += `/>
-            <label class= "plt-label" for="hard-${hwId}-${inputName}" onclick="updateInputs(${platId},'${hwId}', '${inputName}')">${platforms[platId].nombre}.${hardwareList[hwId].tag}</label>`;
+            <label class= "plt-label" for="hard-${platId}-${hwId}-${inputName}" onclick="updateInputs(${platId},'${hwId}', '${inputName}')">${platforms[platId].nombre}.${hardwareList[hwId].tag}</label>`;
         }
     }
     return hardwareInputs;
@@ -292,7 +292,6 @@ const saveEvent = (actualPage) => {
                         nuevoEvento["hardwareSensor"] = sensor;
                     }else {
                         delete nuevoEvento["hardwareSensor"];
-                        console.log("borre el sensor");
                     }
                     if(control){
                         delete nuevoEvento["hardwareText"];

@@ -60,14 +60,17 @@ function insertSearchRow($db, $idPlat, $idHW, $fecha, $sensor, $status, $freq, $
     return $ret;
 }
 //$id, $idPlat, $fecha, $if_left_url, $if_left_id, $if_left_freq, $if_condicion, $if_right_sensor, $if_right_status, $if_right_freq, $if_right_text, $then_url, $then_id
-function insertEvento($db, $id, $idPlat, $json_evento){
+function insertEvento($db, $id, $idPlataformas, $json_evento){
     $fecha = $json_evento['date'];
+
+    $platId = $idPlataformas['platId'];
 
     $if_object = $json_evento['create']['if'];
     $then_object = $json_evento['create']['then'];
     $else_object = $json_evento['create']['else'];
 
-    $if_left_url = $if_object['left']['url'];
+    //$if_left_url = $if_object['left']['url'];
+    $if_platId = $idPlataformas['if_platId'];
     $if_left_id = $if_object['left']['id'];
     $if_left_freq = $if_object['left']['freq'];
 
@@ -91,7 +94,8 @@ function insertEvento($db, $id, $idPlat, $json_evento){
     if(array_key_exists('text', $if_right))
         $if_right_text = '\'' . $if_right['text'] . '\'';
     
-    $then_url = $then_object['url'];
+    //$then_url = $then_object['url'];
+    $then_platId = $idPlataformas['then_platId'];
     $then_id = $then_object['id'];
     
     $then_status = 'NULL';
@@ -106,7 +110,8 @@ function insertEvento($db, $id, $idPlat, $json_evento){
     if(array_key_exists('text', $then_object))
         $then_text = '\'' . $then_object['text'] . '\'';
 
-    $else_url = $else_object['url'];
+    //$else_url = $else_object['url'];
+    $else_platId = $idPlataformas['else_platId'];
     $else_id = $else_object['id'];
 
     $else_status = 'NULL';
@@ -123,9 +128,9 @@ function insertEvento($db, $id, $idPlat, $json_evento){
 
     $sql = "INSERT INTO eventos VALUES(
         '{$id}',
-        {$idPlat},
+        {$platId},
         '{$fecha}',
-        '{$if_left_url}',
+        {$if_platId},
         '{$if_left_id}',
         {$if_left_freq},
         '{$if_condicion}',
@@ -133,12 +138,12 @@ function insertEvento($db, $id, $idPlat, $json_evento){
         {$if_right_status},
         {$if_right_freq},
         {$if_right_text},
-        '{$then_url}',
+        {$then_platId},
         '{$then_id}',
         {$then_status},
         {$then_freq},
         {$then_text},
-        '{$else_url}',
+        {$else_platId},
         '{$else_id}',
         {$else_status},
         {$else_freq},
@@ -187,6 +192,39 @@ function getHW($db, $idPlataforma){
     }
 
     return $hardware;
+}
+
+function getEvento($db){
+    $sql = "SELECT * FROM eventos";
+    
+    $ret = $db->query($sql);
+
+    $eventos = array();
+    while($row = $ret->fetchArray(SQLITE3_ASSOC)) {
+        $eventos[$row['id']] = array(
+            'idPlataforma' => $row['idplataforma'],
+            'fecha' => $row['fecha'],
+            'if_platId' => $row['if_platId'],
+            'if_left_id' => $row['if_left_id'],
+            'if_left_freq' => $row['if_left_freq'],
+            'if_condicion' => $row['if_condicion'],
+            'if_right_sensor' => $row['if_right_sensor'],
+            'if_right_status' => $row['if_right_status'],
+            'if_right_freq' => $row['if_right_freq'],
+            'if_right_text' => $row['if_right_text'],
+            'then_platId' => $row['then_platId'],
+            'then_id' => $row['then_id'],
+            'then_status' => $row['then_status'],
+            'then_freq' => $row['then_freq'],
+            'then_text' => $row['then_text'],
+            'else_platId' => $row['else_platId'],
+            'else_id' => $row['else_id'],
+            'else_status' => $row['else_status'],
+            'else_freq' => $row['else_freq'],
+            'else_text' => $row['else_text']
+        );
+    }
+    return $eventos;
 }
 
 ?>
