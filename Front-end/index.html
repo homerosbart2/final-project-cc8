@@ -19,18 +19,10 @@
         </div>
       </div>
 
-      <div class="col">
-          <div id="go" class="card1 button shadow--md">
-            <div class="card--body">
-              <p class="card--text card--size-state1">Ir</p>
-            </div>
-          </div>
-          <div id="new-events" class="card1 button shadow--md">
-            <div class="card--body">
-              <p class="card--text card--size-state1">Nuevo evento</p>
-            </div>
-          </div>
-        </div>
+      <div class="eventos-container">
+        <button class="btn-eventos" id = "new-events"><i class="fa fa-pencil-alt"></i></button>
+        <button class="btn-eventos" id= "show-events"><i class="fa fa-list"></i></button>
+      </div>
     </div>
     <div id="platforms-container" class="container">
 
@@ -208,6 +200,9 @@
             </div>
         </span>
     </span>
+  </div>
+  <div class="list-events-container" id="lista-eventos">
+    <button class="regresar" id = "back2">Regresar</button>
   </div>
 </body>
 <script type="text/javascript" src="Chart.bundle.min.js"></script>

@@ -1,6 +1,7 @@
 let isAddContainerShown = false;
 let isPltContainerShown = true;
 let isEventContainerShown = false;
+let isEventListContainerShown = false;
 
 const add = document.querySelector('#add');
 const pagePlt = document.querySelector('#page-plt');
@@ -11,6 +12,9 @@ const go = document.querySelector('#go');
 const new_events = document.querySelector('#new-events');
 const eventos = document.querySelector('#eventos'); 
 const back1 = document.querySelector('#back1');
+const show_events = document.querySelector('#show-events');
+const lista_eventos = document.querySelector('#lista-eventos');
+const back2 = document.querySelector('#back2');
 const showPagePlt = (id) => {
 	if(id){
 		if(platforms[id].hardware){
@@ -45,12 +49,29 @@ back1.addEventListener('click', () => {
 	bodyContainer.classList.add('shown');
 	eventos.classList.remove('shown');
 	isEventContainerShown = false;
+});
+
+back2.addEventListener('click', () => {
+	bodyContainer.classList.add('shown');
+	lista_eventos.classList.remove('shown');
+	isEventListContainerShown = false;
+})
+show_events.addEventListener('click', () => {
+	if (isEventListContainerShown) {
+		lista_eventos.classList.remove('shown');
+		isEventListContainerShown = false;
+	}else{
+		lista_eventos.classList.add('shown');
+		isEventListContainerShown = true;
+	}
+
 })
 new_events.addEventListener('click', () =>{
 	if (isEventContainerShown) {
 		eventos.classList.remove('shown');
 		isEventContainerShown = false;
 	}else{
+		nuevoEvento = {};
 		eventos.classList.add('shown');
 		isEventContainerShown = true;
 	}
