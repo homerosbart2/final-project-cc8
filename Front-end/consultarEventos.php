@@ -1,9 +1,9 @@
 <?php
 
-    include 'sqlite.php';
+    include 'postgresql.php';
 
     echo json_encode(getEvento($db));
 
-    $db->close();
+    closeDB($db);
 
 ?>

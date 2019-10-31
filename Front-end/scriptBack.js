@@ -101,6 +101,18 @@ function hardwareContainer(id) {
 	return hardwares;
 }
 
+function consultarEventos() {
+	let http = new XMLHttpRequest();
+	let url = 'consultarEventos.php';
+
+	http.onreadystatechange = () => {
+		if (http.readyState == XMLHttpRequest.DONE){
+			console.log(http.responseText);
+			let respuestaEventos = JSON.parse(http.responseText);
+		}
+	}
+}
+
 function consultarPlataformas() {
 	let http = new XMLHttpRequest();
 	let url = 'consulta.php';

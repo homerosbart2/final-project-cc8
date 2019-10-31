@@ -1,6 +1,6 @@
 <?php
 
-include 'sqlite.php';
+include 'postgresql.php';
 
 $idPlat = $_POST['idPlat'];
 $idEv = $_POST['idEv'];
@@ -40,5 +40,5 @@ if($plataforma){
     }
 }
 
-$db->close();
+closeDB($db);
 ?>

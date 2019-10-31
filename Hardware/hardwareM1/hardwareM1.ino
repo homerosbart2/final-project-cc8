@@ -7,35 +7,45 @@
 
 #include <HTTPClient.h>
 
+// ADC A7
+// MOTOR A6
+
 #define I2S_SAMPLE_RATE 78125
 #define ADC_INPUT ADC1_CHANNEL_4 //pin 32
 #define OUTPUT_PIN 27
 #define OUTPUT_VALUE 3800
 #define READ_DELAY 9000 //microseconds
 
+#define DELAY 500
+
+#define SENSOR "id03"
+#define MATRIZ1 "id02"
+#define MOTOR "id01"
+
+#define WIFISSID "IoT_CCVIII"
+#define PASSWORD "UniversidadGalileoCC8"
+#define URL "http://192.168.0.112/request.json?id="
+
+int sensor_freq = 5000;
+int matriz_freq = 5000;
+int motor_freq = 5000;
+
+int sensor_value;
+bool matriz_status = false;
+String matriz_text = "vacio";
+bool motor_status = false;
+String motor_text = "vacio";
+
+int sensor_cont = 0;
+int matriz_cont = 0;
+int motor_cont = 0;
+
 uint16_t adc_reading;
-uint8_t velocidad = 0;
-int numeroDesplegado = 0;
+
 const int ledPin = 14;
 const int freq = 5000;
 const int ledChannel = 5;
 const int resolution = 8;
-
-float Vin=3.3;     // [V]        
-float Rt=10000;    // Resistor t [ohm]
-float R0=10000;    // value of rct in T0 [ohm]
-float temp0=298.15;   // use T0 in Kelvin [K]
-float Vout=0.0;    // Vout in A0 
-float Rout=0.0;    // Rout in A0
-// use the datasheet to get this data.
-float temp1=273.15;      // [K] in datasheet 0º C
-float temp2=373.15;      // [K] in datasheet 100° C
-float RT1=35563;   // [ohms]  resistence in T1
-float RT2=549;    // [ohms]   resistence in T2
-float beta=0.0;    // initial parameters [K]
-float Rinf=0.0;    // initial parameters [ohm]   
-float TempK=0.0;   // variable output
-float TempC=0.0;   // variable output
 
 WiFiMulti wifiMulti;
 StaticJsonDocument<100> response;
@@ -70,7 +80,6 @@ void reader(void *pvParameters) {
   while(1){
     uint16_t buffer[2] = {0};
     i2s_read(I2S_NUM_0, &buffer, sizeof(buffer), &bytes_read, 15);
-    //Serial.printf("%d  %d\n", offset - buffer[0], offset - buffer[1]);
     if (bytes_read == sizeof(buffer)) {
       read_sum += offset - buffer[0];
       read_sum += offset - buffer[1];
@@ -80,8 +89,6 @@ void reader(void *pvParameters) {
     }
     if (read_counter == I2S_SAMPLE_RATE) {
       adc_reading = read_sum / I2S_SAMPLE_RATE / 2;
-      //Serial.printf("avg: %d millis: ", adc_reading);
-      //Serial.println(millis());
       read_counter = 0;
       read_sum = 0;
       i2s_adc_disable(I2S_NUM_0);
@@ -89,6 +96,59 @@ void reader(void *pvParameters) {
       i2s_adc_enable(I2S_NUM_0);
     }
   }
+}
+
+void send_request(bool type, int request_freq, int value, bool status, String text, String id){
+  HTTPClient http;
+  Serial.print("[HTTP] begin...\n");
+
+  if(type){
+    http.begin(URL+id+"&type=true&frequency="+String(request_freq)+"&sensor="+String(value));
+  }else{
+    http.begin(URL+id+"&type=false&frequency="+String(request_freq)+"&status="+((status)?"true":"false")+"&text="+text);
+  }
+  
+  Serial.print("[HTTP] GET...\n");
+  
+  int httpCode = http.GET();
+
+  if(httpCode > 0) {
+      Serial.printf("[HTTP] GET... code: %d\n", httpCode);
+
+      if(httpCode == HTTP_CODE_OK) {
+          String payload = http.getString();
+          DeserializationError err = deserializeJson(response, payload);
+          Serial.println(id);
+          Serial.println(payload);
+          if(err){
+            Serial.print("deserializeJson failed, code: ");
+            Serial.print("err.c_str()");
+          }
+          else{
+            if(id.equals(SENSOR)){
+             sensor_freq = response["frequency"].as<int>();
+            }else if(id.equals(MATRIZ1)){
+              matriz_freq = response["frequency"].as<int>();
+              matriz_status = response["status"].as<bool>();
+              matriz_text = response["text"].as<String>();
+              if(matriz_text.equals("")){
+                matriz_text = "vacio";
+              }
+            }else if(id.equals(MOTOR)){
+              motor_freq = response["frequency"].as<int>();
+              motor_status = response["status"].as<bool>();
+              motor_text = response["text"].as<String>();
+              if(motor_text.equals("")){
+                motor_text = "vacio";
+              }
+            }
+          }
+      }
+  } else {
+      Serial.printf("[HTTP] GET... failed, error: %s\n", http.errorToString(httpCode).c_str());
+  }
+
+  http.end();
 }
 
 void setup() {
@@ -102,9 +162,6 @@ void setup() {
 
     ledcSetup(ledChannel, freq, resolution);
     ledcAttachPin(ledPin, ledChannel);
-    
-    beta=(log(RT1/RT2))/((1/temp1)-(1/temp2));
-    Rinf=R0*exp(-beta/temp0);
 
     uint32_t freq = ledcSetup(0, I2S_SAMPLE_RATE, 10);
 
@@ -122,7 +179,7 @@ void setup() {
         delay(1000);
     }
 
-    wifiMulti.addAP("JJJ", "znph6048");
+    wifiMulti.addAP(WIFISSID, PASSWORD);
 
 }
 
@@ -130,59 +187,45 @@ void loop() {
     // wait for WiFi connection
     if((wifiMulti.run() == WL_CONNECTED)) {
 
-        HTTPClient http;
-
-        Serial.printf("ADC reading: %d\n", adc_reading);
-
-        Vout=Vin*((float)(adc_reading)/4096.0); // calc for ntc
-        Rout=(Rt*Vout/(Vin-Vout));
-      
-        TempK=(beta/log(Rout/Rinf))-3.0; // calc for temperature
-        TempC=TempK-273.15;
-      
-        Serial.printf("Temperature: %.2f C \n\n", TempC);
-
-        Serial.print("[HTTP] begin...\n");
-        // configure traged server and url
-        http.begin("http://192.168.43.186/request.json?temperature="+String(TempC, 2)+"&motor_speed="+String(velocidad)+"&m1="+String(numeroDesplegado));
-        Serial.print("[HTTP] GET...\n");
-        // start connection and send HTTP header
-        int httpCode = http.GET();
-
-        // httpCode will be negative on error
-        if(httpCode > 0) {
-            // HTTP header has been send and Server response header has been handled
-            Serial.printf("[HTTP] GET... code: %d\n", httpCode);
-
-            // file found at server
-            if(httpCode == HTTP_CODE_OK) {
-                String payload = http.getString();
-                DeserializationError err = deserializeJson(response, payload);
-                if(err){
-                  Serial.print("deserializeJson failed, code: ");
-                  Serial.print("err.c_str()");
-                }
-                else{
-                  Serial.print("Velocidad: ");
-                  velocidad = response["motor_speed"].as<int>();
-                  Serial.println(velocidad);
-                  ledcWrite(ledChannel, velocidad);
-                  numeroDesplegado = response["m1"].as<int>();
-                  pantalla.borrar();
-                  pantalla.escribirCifra(numeroDesplegado);
-                }
-                Serial.println(payload);
-            }
-        } else {
-            Serial.printf("[HTTP] GET... failed, error: %s\n", http.errorToString(httpCode).c_str());
+        if(sensor_cont <= 0){
+          Serial.printf("ADC reading: %d\n", adc_reading);
+          sensor_value = adc_reading / 2;
+          send_request(true, sensor_freq, sensor_value, false, "", SENSOR);
+          sensor_cont = sensor_freq / DELAY;
         }
 
-        http.end();
+        if(matriz_cont <= 0){
+          send_request(false, matriz_freq, 0, matriz_status, matriz_text, MATRIZ1);
+          matriz_cont = matriz_freq / DELAY;
+          //Escribir en la matriz
+          if(matriz_status){
+            char mensaje[sizeof(matriz_text)];
+            matriz_text.toCharArray(mensaje, sizeof(mensaje));
+            pantalla.escribirFrase(mensaje);
+          }else{
+            pantalla.borrar();
+          }
+        }
+
+        if(motor_cont <= 0){
+          send_request(false, motor_freq, 0, motor_status, motor_text, MOTOR);
+          motor_cont = motor_freq / DELAY;
+          //Cambiar Velocidad
+          //ledcWrite(ledChannel, velocidad);
+          if(motor_status){
+            ledcWrite(ledChannel, motor_text.toInt());
+          }else{
+            ledcWrite(ledChannel, 0);
+          }
+        }
     }
     else
     {
       Serial.println("no conecto");
     }
 
-    delay(5000);
+    delay(DELAY);
+    sensor_cont--;
+    matriz_cont--;
+    motor_cont--;
 }

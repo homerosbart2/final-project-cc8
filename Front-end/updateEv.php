@@ -1,6 +1,6 @@
 <?php
 
-include 'sqlite.php';
+include 'postgresql.php';
 
 $json_evento = json_decode(file_get_contents('php://input'), true);
 
@@ -32,6 +32,6 @@ if($plataforma){
     }
 }
 
-$db->close();
+closeDB($db);
 
 ?>

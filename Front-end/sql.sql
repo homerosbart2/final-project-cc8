@@ -59,3 +59,9 @@ CREATE TABLE "eventos" (
 	"else_text" varchar,
 	PRIMARY KEY("id", "idplataforma")
 );
+
+
+select nombre, to_char(fecha, 'YYYY-MM-DD"T"HH24:MI:SS.MS"Z"') from prueba
+Where fecha > '2019-10-31T06:43:59.704Z' AND fecha < '2019-10-31T06:50:30.704Z'
+
+insert into prueba values('2019-10-31T06:43:59.704Z', 'numero6')

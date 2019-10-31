@@ -1,6 +1,6 @@
 <?php
 
-include 'sqlite.php';
+include 'posgresql.php';
 
 $idPlat = $_POST['idPlat'];
 $idHW = $_POST['idHW'];
@@ -61,6 +61,6 @@ if ($result) {
     echo json_encode($response);
 }
 
-$db->close();
+closeDB($db);
 
 ?>

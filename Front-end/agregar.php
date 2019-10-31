@@ -1,5 +1,5 @@
 <?php
-include 'sqlite.php';
+include 'postgresql.php';
 
 $nombre = $_POST['nombre'];
 $ip = $_POST['ip'];
@@ -7,15 +7,15 @@ $puerto = $_POST['puerto'];
 $id = null;
 $update = false;
 
-$sql = "INSERT INTO plataformas(nombre, ip, puerto) VALUES ('{$nombre}', '{$ip}', {$puerto})";
+$ret = false;
 
 if (isset($_POST['id'])) {
     $update = true;
     $id = $_POST['id'];
-    $sql = "UPDATE plataformas SET nombre = '{$nombre}', ip = '{$ip}', puerto = {$puerto} WHERE id = {$id}";
+    $ret = updatePlataforma($db, $id, $nombre, $ip, $puerto);
+}else{
+    $ret = insertPlataforma($db, $nombre, $ip, $puerto);
 }
-
-$ret = $db->exec($sql);
 
 $respuesta = array(
     'success' => false,
@@ -34,5 +34,5 @@ if($ret){
 
 echo json_encode($respuesta);
 
-$db->close();
+closeDB($db);
 ?>

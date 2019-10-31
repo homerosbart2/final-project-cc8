@@ -1,6 +1,6 @@
 <?php
 
-    include 'sqlite.php';
+    include 'postgresql.php';
 
     $idPlat = $_POST['idPlat'];
     $idHW = $_POST['idHW'];
@@ -38,16 +38,23 @@
         if($platformResponse){
             echo $platformResponse;
             $respuesta = json_decode($platformResponse, true);
+            
             $data = $respuesta['data'];
             foreach ($data as $fechaReg => $registro) {
                 $valor_sensor = 0;
                 $valor_freq = 0;
                 $valor_status = 0;
-                $valor_text = "";
+                $valor_text = "NULL";
                 if(array_key_exists('sensor', $registro)) $valor_sensor = $registro['sensor'];
-                if(array_key_exists('status', $registro)) $valor_status = $registro['status'];
+                if(array_key_exists('status', $registro))
+                    if($registro['status']) $valor_status = "TRUE";
+                    else $valor_status = "FALSE";
                 if(array_key_exists('freq', $registro)) $valor_freq = $registro['freq'];
                 if(array_key_exists('text', $registro)) $valor_text = $registro['text'];
+
+                if($valor_text == "") $valor_text = "NULL";
+                else $valor_text = '\'' . $valor_text . '\'';
+
                 insertSearchRow($db, $idPlat, $idHW, $fechaReg, $valor_sensor, $valor_status, $valor_freq, $valor_text);
             }
         } else {
@@ -58,6 +65,6 @@
         echo 'Error';
     }
 
-    $db->close();
+    closeDB($db);
 
 ?>

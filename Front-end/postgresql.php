@@ -1,35 +1,46 @@
 <?php
 
-class DB extends SQLite3 {
-    function __construct() {
-        $this->open('frontEnd.db');
-    }
-}
-
-$db = new DB();
+$db = pg_connect("host=localhost dbname=iot user=postgres password=root");
 
 function getPlataformas($db){
-
     $sql = "SELECT * FROM plataformas;";
 
-    $ret = $db->query($sql);
+    $result = pg_query($db, $sql);
+
     $plataformas = array();
 
-    while($row = $ret->fetchArray(SQLITE3_ASSOC)){
-        $plataformas[$row['id']] = array('ip' => $row['ip'], 'puerto' => $row['puerto'], 'nombre' => $row['nombre']);
+    while($row = pg_fetch_array($result, null, PGSQL_ASSOC)){
+        $plataformas[$row['id']] = array(
+            'ip' => $row['ip'],
+            'puerto' => $row['puerto'],
+            'nombre' => $row['nombre']
+        );
     }
 
     return $plataformas;
+}
+
+function insertPlataforma($db, $nombre, $ip, $puerto){
+    $sql = "INSERT INTO plataformas(nombre, ip, puerto) VALUES ('{$nombre}', '{$ip}', {$puerto})";
+
+    return pg_query($db, $sql); 
+    
+}
+
+function updatePlataforma($db, $platId, $nombre, $ip, $puerto){
+    $sql = "UPDATE plataformas SET nombre = '{$nombre}', ip = '{$ip}', puerto = {$puerto} WHERE id = {$platId}";
+
+    return pg_query($db, $sql);
 }
 
 function getPlataforma($db, $id){
 
     $sql = "SELECT * FROM plataformas WHERE id = '{$id}'";
 
-    $ret = $db->query($sql);
+    $ret = pg_query($db, $sql);
     $result = null;
 
-    while($row = $ret->fetchArray(SQLITE3_ASSOC)){
+    while($row = pg_fetch_array($ret, null, PGSQL_ASSOC)){
         $result = array(
             'ip' => $row['ip'],
             'nombre' => $row['nombre'],
@@ -43,24 +54,23 @@ function getPlataforma($db, $id){
 
 function insertHW($db, $idHW, $tag, $type, $idPlataforma){
     
-    $type = ($type == "input") ? "i" : "o" ;
-    $sql = "INSERT OR REPLACE INTO hardware (id, tag, type, plataforma) VALUES ('{$idHW}', '{$tag}', '$type', $idPlataforma)";
+    $type = ($type == "input") ? "TRUE" : "FALSE" ;
+    $sql = "INSERT INTO hardware (id, tag, type, plataforma) VALUES ('{$idHW}', '{$tag}', {$type}, {$idPlataforma}) ON CONFLICT(id, plataforma) DO UPDATE SET type = EXCLUDED.type, tag = EXCLUDED.tag";
 
-    $ret = $db->exec($sql);
+    $result = pg_query($db, $sql);
 
-    return $ret;
+    return $result;
 
 }
 
 function insertSearchRow($db, $idPlat, $idHW, $fecha, $sensor, $status, $freq, $text){
-    $sql = "INSERT OR REPLACE INTO searchdata (idhardware, idplataforma, fecha, sensor, status, frequency, text) VALUES ('{$idHW}',{$idPlat},'{$fecha}',{$sensor},{$status},{$freq},{$text});";
-    //echo $sql;
+    $sql = "INSERT INTO searchdata (hwId, platId, fecha, sensor, status, frequency, text) VALUES ('{$idHW}',{$idPlat},'{$fecha}',{$sensor},{$status},{$freq},{$text}) ON CONFLICT(hwId, platId, fecha) DO UPDATE SET sensor = EXCLUDED.sensor, status = EXCLUDED.status, frequency = EXCLUDED.frequency, text = EXCLUDED.text";
 
-    $ret = $db->exec($sql);
+    $result = pg_query($db, $sql);
 
-    return $ret;
+    return $result;
 }
-//$id, $idPlat, $fecha, $if_left_url, $if_left_id, $if_left_freq, $if_condicion, $if_right_sensor, $if_right_status, $if_right_freq, $if_right_text, $then_url, $then_id
+
 function insertEvento($db, $id, $idPlataformas, $json_evento){
     $fecha = $json_evento['date'];
 
@@ -85,7 +95,7 @@ function insertEvento($db, $id, $idPlataformas, $json_evento){
     
     $if_right_status = 'NULL';
     if(array_key_exists('status', $if_right))
-        $if_right_status = ($if_right['status']) ? 1 : 0;
+        $if_right_status = ($if_right['status']) ? "TRUE" : "FALSE";
 
     $if_right_freq = 'NULL';
     if(array_key_exists('freq', $if_right))
@@ -101,7 +111,7 @@ function insertEvento($db, $id, $idPlataformas, $json_evento){
     
     $then_status = 'NULL';
     if(array_key_exists('status', $then_object))
-        $then_status = ($then_object['status']) ? 1 : 0;
+        $then_status = ($then_object['status']) ? "TRUE" : "FALSE";
 
     $then_freq = 'NULL';
     if(array_key_exists('freq', $then_object))
@@ -117,7 +127,7 @@ function insertEvento($db, $id, $idPlataformas, $json_evento){
 
     $else_status = 'NULL';
     if(array_key_exists('status', $else_object))
-        $else_status = ($else_object['status']) ? 1 : 0;
+        $else_status = ($else_object['status']) ? "TRUE" : "FALSE";
 
     $else_freq = 'NULL';
     if(array_key_exists('freq', $else_object))
@@ -151,13 +161,13 @@ function insertEvento($db, $id, $idPlataformas, $json_evento){
         {$else_text}
     );";
 
-    $db->exec($sql);
- }
+    pg_query($db, $sql);
+}
 
 function getRegistros($db, $idPlat, $idHW, $start, $finish){
-    $sql = "SELECT * FROM searchdata WHERE fecha >= '$start' AND fecha <= '$finish'";
+    $sql = "SELECT * FROM searchdata WHERE fecha >= '$start' AND fecha <= '$finish' AND platId = $idPlat AND hwId = '$idHW'";
 
-    $ret = $db->query($sql);
+    $result = pg_query($db, $sql);
     $registros = array(
         'search' => array(
             'id_hardware' => $idHW,
@@ -165,7 +175,7 @@ function getRegistros($db, $idPlat, $idHW, $start, $finish){
         'data' => array()
     );
 
-    while ($row = $ret->fetchArray(SQLITE3_ASSOC)) {
+    while ($row = pg_fetch_array($result, null, PGSQL_ASSOC)) {
         $registros['data'][$row['fecha']] = array(
             'sensor' => $row['sensor'],
             'status' => $row['status'],
@@ -181,11 +191,11 @@ function getHW($db, $idPlataforma){
 
     $sql = "SELECT * FROM hardware WHERE plataforma = {$idPlataforma}";
 
-    $ret = $db->query($sql);
+    $result = pg_query($db, $sql);
 
     $hardware = array();
-    while ($row = $ret->fetchArray(SQLITE3_ASSOC)) {
-        $type = ($row['type'] == "i") ? "input" : "output";
+    while ($row = pg_fetch_array($result, null, PGSQL_ASSOC)) {
+        $type = ($row['type'] == "t") ? "input" : "output";
         $hardware[$row['id']] = array(
             'tag' => $row['tag'],
             'type' => $type
@@ -198,10 +208,10 @@ function getHW($db, $idPlataforma){
 function getEvento($db){
     $sql = "SELECT * FROM eventos";
     
-    $ret = $db->query($sql);
+    $result = pg_query($db, $sql);
 
     $eventos = array();
-    while($row = $ret->fetchArray(SQLITE3_ASSOC)) {
+    while($row = pg_fetch_array($result, null, PGSQL_ASSOC)) {
         $eventos[$row['id']] = array(
             'idPlataforma' => $row['idplataforma'],
             'fecha' => $row['fecha'],
@@ -226,6 +236,10 @@ function getEvento($db){
         );
     }
     return $eventos;
+}
+
+function closeDB($db){
+    pg_close($db);
 }
 
 ?>

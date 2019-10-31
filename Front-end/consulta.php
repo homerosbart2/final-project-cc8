@@ -1,9 +1,9 @@
 <?php
-include 'sqlite.php';
+include 'postgresql.php';
 
 $plataformas = getPlataformas($db);
 
 echo json_encode($plataformas);
 
-$db->close();
+closeDB($db);
 ?>

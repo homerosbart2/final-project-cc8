@@ -1,6 +1,6 @@
 <?php
 
-	include 'sqlite.php';
+	include 'postgresql.php';
 
 	//$plataformas = getPlataformas($db);
 
@@ -58,6 +58,6 @@
 
 	echo json_encode($response);
 
-	$db->close();
+	closeDB($db);
 
 ?>
