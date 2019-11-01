@@ -206,16 +206,16 @@ function getHW($db, $idPlataforma){
 }
 
 function getEvento($db){
-    $sql = "SELECT * FROM eventos";
+    $sql = "SELECT *, to_char(fecha, 'YYYY-MM-DD\"T\"HH24:MI:SS.MS\"Z\"') as fechaiso FROM eventos";
     
     $result = pg_query($db, $sql);
 
     $eventos = array();
     while($row = pg_fetch_array($result, null, PGSQL_ASSOC)) {
         $eventos[$row['id']] = array(
-            'idPlataforma' => $row['idplataforma'],
-            'fecha' => $row['fecha'],
-            'if_platId' => $row['if_platId'],
+            'platId' => $row['platid'],
+            'fecha' => $row['fechaiso'],
+            'if_platId' => $row['if_platid'],
             'if_left_id' => $row['if_left_id'],
             'if_left_freq' => $row['if_left_freq'],
             'if_condicion' => $row['if_condicion'],
@@ -223,12 +223,12 @@ function getEvento($db){
             'if_right_status' => $row['if_right_status'],
             'if_right_freq' => $row['if_right_freq'],
             'if_right_text' => $row['if_right_text'],
-            'then_platId' => $row['then_platId'],
+            'then_platId' => $row['then_platid'],
             'then_id' => $row['then_id'],
             'then_status' => $row['then_status'],
             'then_freq' => $row['then_freq'],
             'then_text' => $row['then_text'],
-            'else_platId' => $row['else_platId'],
+            'else_platId' => $row['else_platid'],
             'else_id' => $row['else_id'],
             'else_status' => $row['else_status'],
             'else_freq' => $row['else_freq'],
