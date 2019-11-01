@@ -22,6 +22,15 @@ refresh.addEventListener('click', () => {
 	consultarPlataformas();
 });
 
+function eventCard(id, fecha, platId){
+	return `
+	<div class="events-card" id="event-${platId}-${id}">
+		<p class="p1"> ${id} </p>
+		<p class="p2"> ${fecha} </p>
+	</div>
+	`
+}
+
 function platformContainer(nombre, ip, puerto, color, id) {
 	return `
 		<div class="plt-container">
@@ -109,8 +118,16 @@ function consultarEventos() {
 		if (http.readyState == XMLHttpRequest.DONE){
 			console.log(http.responseText);
 			let respuestaEventos = JSON.parse(http.responseText);
+			let page = document.querySelector('#page-eventos');
+			page.innerHTML = "";
+			for (const eventId in respuestaEventos) {
+				page.innerHTML += eventCard(eventId, respuestaEventos[eventId].fecha, respuestaEventos[eventId].platId);
+			}
 		}
 	}
+
+	http.open("GET", url, true);
+	http.send();	
 }
 
 function consultarPlataformas() {

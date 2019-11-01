@@ -61,6 +61,7 @@ show_events.addEventListener('click', () => {
 		lista_eventos.classList.remove('shown');
 		isEventListContainerShown = false;
 	}else{
+		consultarEventos();
 		lista_eventos.classList.add('shown');
 		isEventListContainerShown = true;
 	}
@@ -91,10 +92,6 @@ add.addEventListener('click', () => {
 		isAddContainerShown = true;
 	 add.querySelector("div p").innerHTML = "Cancelar";
 	} 
-});
-
-go.addEventListener('click', () => {
-	showPagePlt();
 });
 
 function loadFlipButton() {
