@@ -34,8 +34,8 @@ if($plataforma){
     if($platformResponse){
         echo $platformResponse;
         $resultado = json_decode($platformResponse, true);
-        if($resultado['status'] == "OK"){
-            //Eliminar evento de DB
+        if(array_key_exists('status', $resultado) && $resultado['status'] == "OK"){
+            deleteEvento();
         }
     }
 }

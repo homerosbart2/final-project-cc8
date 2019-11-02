@@ -1,4 +1,5 @@
 var nuevoEvento = {};
+var regresar;
 let rendererInputs = null;
 // Mi idea es que definamos funciones para cada pagina que 
 // necesitemos y que retornen la estructura HTML como string.
@@ -119,12 +120,31 @@ var cargarWizard = () => {
         const wizardBodyContainer = document.querySelector('#wizard-body-container');
         const wizardStepsContainer = document.querySelector('#wizard-steps-container');
 
+        regresar = (page) => {
+            wizardStepsContainer.querySelector(`#wizard-step-${actualPage}`).classList.remove('selected');
+            actualPage = page;
+            isTransitioning = false;
+            wizardStepsContainer.querySelector(`#wizard-step-${actualPage}`).classList.add('selected');
+            document.querySelector('#wizard-next').innerHTML = "Siguiente";
+            wizardBodyContainer.querySelector('.left').innerHTML = "";
+            wizardBodyContainer.querySelector('.center').innerHTML = pages[actualPage].renderer();
+            wizardBodyContainer.querySelector('.right').innerHTML = "";
+            if(page == 1 && updateEvent){
+                let hardwareInfo = nuevoEvento.hardwareHardware.split("-");
+                updateInputs(hardwareInfo[0], hardwareInfo[1], 'hardware');
+            }
+        }
+
         const handleWizardPrevoiusClick = () => {
             if (!isTransitioning && actualPage > 0) {
                 isTransitioning = true;
 
                 saveEvent(actualPage);
                 
+                if(updateEvent && actualPage == 1){
+                    isTransitioning = false;
+                    return;
+                };
                 actualPage--;
 
                 const nextWizardStep = wizardStepsContainer.querySelector(`#wizard-step-${actualPage + 1}`);
@@ -145,7 +165,6 @@ var cargarWizard = () => {
                 if(actualPage != pages.length -1){
                     let boton = document.querySelector('#wizard-next')
                     boton.innerHTML = "Siguiente";
-                    boton.classList.remove('crear-evento');
                 }
 
                 if (wizardLeftContainer && wizardCenterContainer && wizardRightContainer) {
@@ -200,7 +219,8 @@ var cargarWizard = () => {
                 
                 if(actualPage == pages.length -1){
                     let boton = document.querySelector('#wizard-next');
-                    boton.innerHTML = "Crear Evento";
+                    if(updateEvent) boton.innerHTML = "Actualizar Evento";
+                    else boton.innerHTML = "Crear Evento"
                     boton.classList.add('crear-evento');
                 }
 

@@ -762,3 +762,26 @@ input:focus {
   justify-content: center;
   height: 100px;
 }
+
+.x {
+  color: white;
+  margin-right: 10px;
+  position: relative;
+  top: 7px;
+  left: 80px;
+}
+
+.actualizar {
+  width: 195px;
+  height: 39px;
+  position: relative;
+  bottom: 5px;
+  background: black;
+  border-bottom-left-radius: 12px;
+  border-bottom-right-radius: 12px;
+  text-align: center;
+  color: white;
+  opacity: 0.7;
+  padding-top: 10px;
+  font-size: 18px;
+}

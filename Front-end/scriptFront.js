@@ -72,7 +72,11 @@ new_events.addEventListener('click', () =>{
 		eventos.classList.remove('shown');
 		isEventContainerShown = false;
 	}else{
-		nuevoEvento = {};
+		if(updateEvent){
+			nuevoEvento = {};
+			regresar(0);
+		}
+		updateEvent = false;
 		eventos.classList.add('shown');
 		isEventContainerShown = true;
 	}

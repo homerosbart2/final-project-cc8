@@ -71,6 +71,99 @@ function insertSearchRow($db, $idPlat, $idHW, $fecha, $sensor, $status, $freq, $
     return $result;
 }
 
+function updateEvento($db, $idPlataformas, $json_evento){
+    $eventid = $json_evento['update']['id'];
+
+    $fecha = $json_evento['date'];
+
+    $platId = $idPlataformas['platId'];
+
+    $if_object = $json_evento['update']['if'];
+    $then_object = $json_evento['update']['then'];
+    $else_object = $json_evento['update']['else'];
+
+    //$if_left_url = $if_object['left']['url'];
+    $if_platId = $idPlataformas['if_platId'];
+    $if_left_id = $if_object['left']['id'];
+    $if_left_freq = $if_object['left']['freq'];
+
+    $if_condicion = $if_object['condition'];
+
+    $if_right = $if_object['right'];
+
+    $if_right_sensor = 'NULL';
+    if(array_key_exists('sensor', $if_right))
+        $if_right_sensor = $if_right['sensor'];
+    
+    $if_right_status = 'NULL';
+    if(array_key_exists('status', $if_right))
+        $if_right_status = ($if_right['status']) ? "TRUE" : "FALSE";
+
+    $if_right_freq = 'NULL';
+    if(array_key_exists('freq', $if_right))
+        $if_right_freq = $if_right['freq'];
+
+    $if_right_text = 'NULL';
+    if(array_key_exists('text', $if_right))
+        $if_right_text = '\'' . $if_right['text'] . '\'';
+    
+    //$then_url = $then_object['url'];
+    $then_platId = $idPlataformas['then_platId'];
+    $then_id = $then_object['id'];
+    
+    $then_status = 'NULL';
+    if(array_key_exists('status', $then_object))
+        $then_status = ($then_object['status']) ? "TRUE" : "FALSE";
+
+    $then_freq = 'NULL';
+    if(array_key_exists('freq', $then_object))
+        $then_freq = $then_object['freq'];
+
+    $then_text = 'NULL';
+    if(array_key_exists('text', $then_object))
+        $then_text = '\'' . $then_object['text'] . '\'';
+
+    //$else_url = $else_object['url'];
+    $else_platId = $idPlataformas['else_platId'];
+    $else_id = $else_object['id'];
+
+    $else_status = 'NULL';
+    if(array_key_exists('status', $else_object))
+        $else_status = ($else_object['status']) ? "TRUE" : "FALSE";
+
+    $else_freq = 'NULL';
+    if(array_key_exists('freq', $else_object))
+        $else_freq = $else_object['freq'];
+
+    $else_text = 'NULL';
+    if(array_key_exists('text', $else_object))
+        $else_text = '\'' . $else_object['text'] . '\'';
+
+    $sql = "UPDATE eventos SET
+        fecha = '{$fecha}',
+        if_platid = {$if_platId},
+        if_left_id = '{$if_left_id}',
+        if_left_freq = {$if_left_freq},
+        if_condicion = '{$if_condicion}',
+        if_right_sensor = {$if_right_sensor},
+        if_right_status = {$if_right_status},
+        if_right_freq = {$if_right_freq},
+        if_right_text = {$if_right_text},
+        then_platid = {$then_platId},
+        then_id = '{$then_id}',
+        then_status = {$then_status},
+        then_freq = {$then_freq},
+        then_text = {$then_text},
+        else_platid = {$else_platId},
+        else_id = '{$else_id}',
+        else_status = {$else_status},
+        else_freq = {$else_freq},
+        else_text = {$else_text}
+    WHERE id = '{$eventid}' AND platid = {$platId}";
+
+    pg_query($db, $sql);
+}
+
 function insertEvento($db, $id, $idPlataformas, $json_evento){
     $fecha = $json_evento['date'];
 
@@ -220,22 +313,28 @@ function getEvento($db){
             'if_left_freq' => $row['if_left_freq'],
             'if_condicion' => $row['if_condicion'],
             'if_right_sensor' => $row['if_right_sensor'],
-            'if_right_status' => $row['if_right_status'],
+            'if_right_status' => ($row['if_right_status'] == "t") ? TRUE : FALSE,
             'if_right_freq' => $row['if_right_freq'],
             'if_right_text' => $row['if_right_text'],
             'then_platId' => $row['then_platid'],
             'then_id' => $row['then_id'],
-            'then_status' => $row['then_status'],
+            'then_status' => ($row['then_status'] == "t") ? TRUE : FALSE,
             'then_freq' => $row['then_freq'],
             'then_text' => $row['then_text'],
             'else_platId' => $row['else_platid'],
             'else_id' => $row['else_id'],
-            'else_status' => $row['else_status'],
+            'else_status' => ($row['else_status'] == "t") ? TRUE : FALSE,
             'else_freq' => $row['else_freq'],
             'else_text' => $row['else_text']
         );
     }
     return $eventos;
+}
+
+function deleteEvento($db, $platid, $eventid){
+    $sql = "DELETE FROM eventos WHERE platid = {$platId} AND id = {$eventid}";
+
+    pg_query($db, $sql);
 }
 
 function closeDB($db){

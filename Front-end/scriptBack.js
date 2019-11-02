@@ -1,7 +1,9 @@
 var platforms = {};
+var listaEventos = {};
 var modifyId = null;
 var search_id_plat = null;
 var search_id_hw = null;
+var updateEvent = false;
 
 let colorCount = 0;
 let firstRefresh = true;
@@ -25,8 +27,10 @@ refresh.addEventListener('click', () => {
 function eventCard(id, fecha, platId){
 	return `
 	<div class="events-card" id="event-${platId}-${id}">
+		<div class="x"><i class="fa fa-times" onclick=deleteEvent(${platId},'${id}')></i></div>
 		<p class="p1"> ${id} </p>
 		<p class="p2"> ${fecha} </p>
+		<div class="actualizar" onclick=showUpdateEvent(${platId},'${id}')>Actualizar</div>
 	</div>
 	`
 }
@@ -110,6 +114,54 @@ function hardwareContainer(id) {
 	return hardwares;
 }
 
+function deleteEvent(platId, id) {
+	let http = new XMLHttpRequest();
+	let url = 'deleteEv.php';
+	let params = `idPlat=${platId}&idEv=${id}&fecha=${new Date().toISOString()}`;
+
+	http.onreadystatechange = () => {
+		if(http.readyState == XMLHttpRequest.DONE){
+			console.log(http.responseText);
+			let respuesta = JSON.parse(http.responseText);
+			if(respuesta.status && respuesta.status == "OK"){
+				document.querySelector("#div").remove();
+			}else{}
+		}
+	}
+
+	http.open("POST", url, true);
+	http.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
+	http.send(params);
+}
+
+function showUpdateEvent(platId, id){
+	updateEvent = true;
+	let eventDetails = listaEventos[id];
+	nuevoEvento = {
+		createPlatId: platId,
+		eventId: id,
+		hardwareFreq: eventDetails.if_right_freq,
+		hardwareSensor: eventDetails.if_right_sensor,
+		hardwareStatus: eventDetails.if_right_status,
+		hardwareText: eventDetails.if_right_text,
+		hardwareHardware: eventDetails.if_platId + "-" + eventDetails.if_left_id,
+		condicion: eventDetails.if_condicion,
+		thenFreq: eventDetails.then_freq,
+		thenText: eventDetails.then_text,
+		thenStatus: eventDetails.then_status,
+		thenHardware: eventDetails.then_platId + "-" + eventDetails.then_id,
+		elseFreq: eventDetails.else_freq,
+		elseText: eventDetails.else_text,
+		elseStatus: eventDetails.else_status,
+		elseHardware: eventDetails.else_platId + "-" + eventDetails.else_id,
+	};
+	regresar(1);
+	eventos.classList.add('shown');
+	isEventContainerShown = true;
+	lista_eventos.classList.remove('shown');
+	isEventListContainerShown = false;
+}
+
 function consultarEventos() {
 	let http = new XMLHttpRequest();
 	let url = 'consultarEventos.php';
@@ -118,6 +170,7 @@ function consultarEventos() {
 		if (http.readyState == XMLHttpRequest.DONE){
 			console.log(http.responseText);
 			let respuestaEventos = JSON.parse(http.responseText);
+			listaEventos = respuestaEventos;
 			let page = document.querySelector('#page-eventos');
 			page.innerHTML = "";
 			for (const eventId in respuestaEventos) {
@@ -411,6 +464,14 @@ function createEvent(){
 
 		let http = new XMLHttpRequest();
 		let url = 'createEv.php';
+
+		if(nuevoEvento.eventId){
+			url = 'updateEv.php';
+			request.update = request.create;
+			request.update.id = nuevoEvento.eventId;
+			delete request.create;
+		}
+
 		let params = JSON.stringify(request);
 
 		http.onreadystatechange = () => {
@@ -423,11 +484,14 @@ function createEvent(){
 						bodyContainer.classList.add('shown');
 						eventos.classList.remove('shown');
 						isEventContainerShown = false;
+						nuevoEvento = {};
+						regresar(0);
 					}else{
 						console.log("Ocurrio un error al crear el evento");
 					}
 				}catch(error){
 					console.log("error");
+					console.log(error);
 				}
 			}
 		}
@@ -435,6 +499,7 @@ function createEvent(){
 		http.open("POST", url, true);
 		http.setRequestHeader('Content-type', 'application/json');
 		http.send(params);
+
 	}else{
 		console.log("no hay");
 	}
