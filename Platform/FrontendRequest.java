@@ -11,6 +11,7 @@ public class FrontendRequest {
     public Search search;
     public Create create;
     public Update update;
+    public Delete delete;
     private Object change;
     public Hardware[] hardware;
 
@@ -78,6 +79,10 @@ class Create {
 }
 
 class Update extends Create {
+    public String id;
+}
+
+class Delete {
     public String id;
 }
 

@@ -52,24 +52,8 @@ public class Platform {
 
     private static void setIpAddress() {
         try {
-            Enumeration<NetworkInterface> interfaces = NetworkInterface.getNetworkInterfaces();
-            boolean modified = false;
-            while (interfaces.hasMoreElements()) {
-                NetworkInterface networkInterface = interfaces.nextElement();
-                if (!networkInterface.isUp())
-                    continue;
-                Enumeration<InetAddress> addresses = networkInterface.getInetAddresses();
-                while(addresses.hasMoreElements()) {
-                    InetAddress addr = addresses.nextElement();
-                    if (networkInterface.getDisplayName().equals("Intel(R) Dual Band Wireless-AC 8265")) {
-                        if (!modified) {
-                            ip = addr.getHostAddress();
-                            modified = true;
-                        }
-                    }
-                }
-            }
-        } catch (SocketException e) {
+            ip = InetAddress.getLocalHost().getHostAddress();
+        } catch (UnknownHostException e) {
             System.out.println(e);
         }
     }
@@ -85,7 +69,7 @@ public class Platform {
             statement.execute(query);
         } else if (command.equals("SELECT")) {
             return statement.executeQuery(query);
-        } else if (command.equals("UPDATE") || command.equals("INSERT")) {
+        } else if (command.equals("UPDATE") || command.equals("INSERT") || command.equals("DELETE")) {
             statement.executeUpdate(query);
         } else {
             throw new SQLException(command + " is not supported.");
@@ -253,6 +237,7 @@ class Handler implements Runnable {
         String[] splittedUrl;
         char[] body;
         int count, contentLength;
+        boolean print;
         HashMap<String, String> params = new HashMap<String, String>();
 
         try {
@@ -267,11 +252,13 @@ class Handler implements Runnable {
             contentType = "";
             count = 0;
             contentLength = 0;
+            print = false;
 
             while(true){
                 try{
                     input = in.readLine();
-                    if (input.startsWith("GET") || input.startsWith("POST")) System.out.println(input);
+                    if (input.startsWith("POST")) print = true;
+                    if ((input.startsWith("GET") || input.startsWith("POST")) && print) System.out.println(input);
                 }catch(Exception e){
                     System.out.println("catch");
                 } 
@@ -287,18 +274,18 @@ class Handler implements Runnable {
                     if(count == 0){
                         method = props;
                         url = parse.nextToken().toLowerCase();
-                        System.out.println("URL:\t" + url);
+                        if (print) System.out.println("URL:\t" + url);
                         splittedUrl = url.split("\\?");
                         fileName = splittedUrl[0];
-                        System.out.println("FILE:\t" + fileName);
+                        if (print) System.out.println("FILE:\t" + fileName);
                         if (props.equals("GET")) {
                             if (splittedUrl.length > 1) {
-                                System.out.println("PARAMS:\t" + splittedUrl[1]);
+                                if (print) System.out.println("PARAMS:\t" + splittedUrl[1]);
                                 String[] keyValueParams = splittedUrl[1].split("&");
                                 for (String param : keyValueParams) {
                                     String[] splittedParam = param.split("=");
                                     params.put(splittedParam[0], splittedParam[1]);
-                                    System.out.println("\t" + splittedParam[0] + ":\t" + splittedParam[1]);
+                                    if (print) System.out.println("\t" + splittedParam[0] + ":\t" + splittedParam[1]);
                                 }
                             }
                         }
@@ -321,10 +308,12 @@ class Handler implements Runnable {
                 }else{
                     body = new char[contentLength];
                     in.read(body, 0, contentLength);
-                    System.out.println(new String(body));
+                    if (print) System.out.println(new String(body));
                     break;
                 }
             }
+
+            if (fileName.endsWith("/")) fileName = fileName.substring(0, fileName.length() - 1);
             
             if(method.equals("GET")) try{
                 if(fileName.equals("index.html")){
@@ -373,7 +362,7 @@ class Handler implements Runnable {
                         + status + ",'"
                         + text + "');";
 
-                    System.out.println("QUERY:\t" + query);
+                    if (print) System.out.println("QUERY:\t" + query);
 
                     Platform.executeQuery(query);
 
@@ -383,7 +372,7 @@ class Handler implements Runnable {
                         status = rs.getBoolean("status") + "";
                         frequency = rs.getInt("frequency") + "";
                         text = rs.getString("text");
-                        System.out.println("STATUS:\t" + status);
+                        if (print) System.out.println("STATUS:\t" + status);
                     }
                     rs.close();
                     
@@ -432,7 +421,7 @@ class Handler implements Runnable {
                 FrontendRequest frontendRequest = gson.fromJson(stringBody, FrontendRequest.class);
                 Date now = new Date();
                 String response = "{\"id\":\"" + Platform.id + "\", \"url\":\"" + Platform.ip + "\", \"date\": \"" + dateFormat.format(now) + "\"";
-                if (fileName.equals("search/")) {
+                if (fileName.equals("search")) {
                     response += ", \"search\": {"; 
 
                     String query = "SELECT * FROM hardware WHERE id = '" + frontendRequest.search.id_hardware + "';";
@@ -452,7 +441,7 @@ class Handler implements Runnable {
                     response = response.substring(0, response.length() - 2);
                     response += "}";
                     rs.close();
-                } else if (fileName.equals("info/")) {
+                } else if (fileName.equals("info")) {
                     response += ", \"hardware\": {"; 
                     String query = "SELECT * FROM hardware;";
                     ResultSet rs = Platform.executeQuery(query);
@@ -464,7 +453,7 @@ class Handler implements Runnable {
                     rs.close();
                     response = response.substring(0, response.length() - 2);
                     response += "}";
-                } else if (fileName.equals("change/")) {
+                } else if (fileName.equals("change")) {
                     try {
                         Hardware[] hardwareArray = frontendRequest.decodeHardware();
                         for (Hardware hardware : hardwareArray) {
@@ -484,7 +473,7 @@ class Handler implements Runnable {
                         response += ", \"status\": \"ERROR\""; 
                     }
                    
-                } else if (fileName.equals("create/")) {
+                } else if (fileName.equals("create")) {
                     try {
                         Create create = frontendRequest.create;
                         if (create != null) {
@@ -535,7 +524,7 @@ class Handler implements Runnable {
                         System.out.println(e);
                         response += ", \"status\": \"ERROR\"";
                     }
-                } else if (fileName.equals("update/")) {
+                } else if (fileName.equals("update")) {
                     Update update = frontendRequest.update;
                     if (update != null) {
                         String eventCorrelative = update.id;
@@ -580,8 +569,32 @@ class Handler implements Runnable {
                         }
                         query = query.substring(0, query.length() - 2);
                         query += " WHERE id = '" + eventCorrelative + "';";
-                        System.out.println(query);
-                        Platform.executeQuery(query);
+    
+                        System.out.println("QUERY:\t" + query);
+    
+                        try {
+                            Platform.executeQuery(query);
+                            response += ", \"status\": \"OK\"";
+                        } catch (SQLException e) {
+                            response += ", \"status\": \"ERROR\"";
+                        }
+                    } else {
+                        response += ", \"status\": \"ERROR\"";
+                    }
+                } else if (fileName.equals("delete")) {
+                    Delete delete = frontendRequest.delete;
+                    if (delete != null) {
+                        String eventCorrelative = delete.id;
+                        String query = "DELETE FROM events WHERE id='" + eventCorrelative + "';";
+    
+                        System.out.println("QUERY:\t" + query);
+    
+                        try {
+                            Platform.executeQuery(query);
+                            response += ", \"status\": \"OK\"";
+                        } catch (SQLException e) {
+                            response += ", \"status\": \"ERROR\"";
+                        }
                     } else {
                         response += ", \"status\": \"ERROR\"";
                     }
