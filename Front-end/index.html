@@ -2,6 +2,7 @@
 <html lang="en" >
 <head>
   <link href="./fontawesome/css/all.css" rel="stylesheet">
+  <link href="./pnotify/pnotify.custom.min.css" rel="stylesheet">
   <meta charset="UTF-8">
   <title>SG</title>
    
@@ -11,6 +12,7 @@
   <link rel="stylesheet" href="./wizard/style.css">
 </head>
 <body>
+  <script src="./pnotify/pnotify.custom.min.js"></script>
   <div id="body-container" class="body-container shown">
     <div>
      <div id="refresh" class="card1 button shadow--md fondo1" style="box-shadow: 0 5px 8px rgba(0,0,0,0);">
@@ -141,19 +143,11 @@
           <div class="text-container" style="margin-bottom: 25px;">
             <div class="ip-port-input">
               <input class="fecha" type="date" id="fecha-start" name="">
-              <span class="splitter">
-                <span class="dot">●</span>
-                <span class="dot">●</span>
-              </span>
               <input class="hora" type="time" id="hora-start" name="" step="1">
             </div>
 
             <div class="ip-port-input">
               <input class="fecha" type="date" id="fecha-finish" name="">
-              <span class="splitter">
-                <span class="dot">●</span>
-                <span class="dot">●</span>
-              </span>
               <input class="hora" type="time" id="hora-finish" name="" step="1">
             </div>
             <button class="add-button boton2" id="" onclick="search()"><i class="fas fa-search"></i></button>

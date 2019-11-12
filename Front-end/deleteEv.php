@@ -35,7 +35,7 @@ if($plataforma){
         echo $platformResponse;
         $resultado = json_decode($platformResponse, true);
         if(array_key_exists('status', $resultado) && $resultado['status'] == "OK"){
-            deleteEvento();
+            deleteEvento($db, $idPlat, $idEv);
         }
     }
 }

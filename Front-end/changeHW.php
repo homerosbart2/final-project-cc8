@@ -1,6 +1,6 @@
 <?php
 
-include 'posgresql.php';
+include 'postgresql.php';
 
 $idPlat = $_POST['idPlat'];
 $idHW = $_POST['idHW'];

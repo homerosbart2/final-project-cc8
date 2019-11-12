@@ -332,7 +332,7 @@ function getEvento($db){
 }
 
 function deleteEvento($db, $platid, $eventid){
-    $sql = "DELETE FROM eventos WHERE platid = {$platId} AND id = {$eventid}";
+    $sql = "DELETE FROM eventos WHERE platid = {$platid} AND id = '{$eventid}'";
 
     pg_query($db, $sql);
 }

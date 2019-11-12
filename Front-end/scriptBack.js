@@ -24,6 +24,20 @@ refresh.addEventListener('click', () => {
 	consultarPlataformas();
 });
 
+/* function alertError(title, message) {
+	PNotify.error({
+		title: title,
+		text: message
+	});
+}
+
+function alertOK(title, message) {
+	PNotify.success({
+		title: title,
+		text: message
+	});
+} */
+
 function eventCard(id, fecha, platId){
 	return `
 	<div class="events-card" id="event-${platId}-${id}">
@@ -124,8 +138,10 @@ function deleteEvent(platId, id) {
 			console.log(http.responseText);
 			let respuesta = JSON.parse(http.responseText);
 			if(respuesta.status && respuesta.status == "OK"){
-				document.querySelector("#div").remove();
-			}else{}
+				document.querySelector(`#event-${platId}-${id}`).remove();
+			}else{
+				//alertError("Error", "No se pudo eliminar el evento");
+			}
 		}
 	}
 
@@ -257,7 +273,7 @@ function changeHardware(idPlat, idHW){
 		status = document.querySelector(`#switch-${idPlat}-${idHW}`);
 		text = document.querySelector(`#text-${idPlat}-${idHW}`);
 	}
-	if(freq.value != ""){
+	if(outputBool || freq.value != ""){
 		let control = true;
 		if(outputBool){
 			if(status != null && text != null && text.value != ""){
@@ -279,7 +295,13 @@ function changeHardware(idPlat, idHW){
 						console.log(http.responseText);
 						let respuesta = JSON.parse(http.responseText);
 						console.log(respuesta.status);
+						if(respuesta.status && respuesta.status == "OK") {
+							//alertOK("OK", "Se realizo el cambio correctamente");
+						}else{
+							//alertError("Error", "No se pudo cambiar");
+						}
 					}catch (error){
+						//alertError("Error", "No se pudo cambiar");
 						console.log("error");
 					}
 				}
@@ -343,7 +365,9 @@ function search(){
 							});
 						}
 						createNewChart(fechas, sensor, freq, status);
-					} catch (error) {}
+					} catch (error) {
+						//alertError("Error", "Ocurrio un error al realizar la busqueda");
+					}
 				}
 			}
 
@@ -480,6 +504,7 @@ function createEvent(){
 				try{
 					let respuesta = JSON.parse(http.responseText);
 					if(respuesta.status && respuesta.status == "OK"){
+						//alertOK("OK", "Evento Creado Exitosamente");
 						console.log("Evento creado Exitosamente");
 						bodyContainer.classList.add('shown');
 						eventos.classList.remove('shown');
@@ -487,9 +512,11 @@ function createEvent(){
 						nuevoEvento = {};
 						regresar(0);
 					}else{
+						//alertError("Error", "Ocurrio un error al crear el evento");
 						console.log("Ocurrio un error al crear el evento");
 					}
 				}catch(error){
+					//alertError("Error", "Ocurrio un error al crear el evento");
 					console.log("error");
 					console.log(error);
 				}
