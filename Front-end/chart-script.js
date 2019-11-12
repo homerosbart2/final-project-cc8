@@ -1,7 +1,6 @@
 var graficas = [
     document.querySelector('#myChart'),
-    document.querySelector('#myChart2'),
-    document.querySelector('#myChart3')
+    document.querySelector('#myChart2')
 ]
 var myChart;
 var myChart2;

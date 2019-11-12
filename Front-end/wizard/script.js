@@ -33,8 +33,15 @@ const renderFirstPage = () => {
         platInputs+= `/>
         <label class= "plt-label" for="plt-${platId}">${platforms[platId].nombre}</label>\n`;
     }
-    return `<div class = "plt-cont">
-               ${platInputs}
+    return `<div class = "event-hardware>
+                <div class = "event-hardware-list>
+                    <div class = "plt-cont">
+                    ${platInputs}
+                    </div>
+                    <div class = "event-hardware-cmp">
+                        <input type = "number" id="if-left-freq" class = "freq-value" type = "text" placeholder = "Frecuencia">
+                    </div>
+                </div>
             </div>`;
 }
 
@@ -290,8 +297,10 @@ const saveEvent = (actualPage) => {
     switch(actualPage){
         case 0:
             let createPlatId = document.querySelector('input[name="plataforma"]:checked');
-            if(createPlatId){
+            let if_left_freq = document.querySelector("#if-left-freq").value;
+            if(createPlatId && if_left_freq){
                 nuevoEvento["createPlatId"] = createPlatId.value;
+                nuevoEvento["if_left_freq"] = if_left_freq;
             }else return false;
             break;
         case 1:

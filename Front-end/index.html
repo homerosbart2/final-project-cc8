@@ -3,6 +3,8 @@
 <head>
   <link href="./fontawesome/css/all.css" rel="stylesheet">
   <link href="./pnotify/pnotify.custom.min.css" rel="stylesheet">
+  <script src="./pnotify/jquery-3.3.1.min.js"></script>
+  <script src="./pnotify/pnotify.custom.min.js"></script>
   <meta charset="UTF-8">
   <title>SG</title>
    
@@ -12,7 +14,6 @@
   <link rel="stylesheet" href="./wizard/style.css">
 </head>
 <body>
-  <script src="./pnotify/pnotify.custom.min.js"></script>
   <div id="body-container" class="body-container shown">
     <div>
      <div id="refresh" class="card1 button shadow--md fondo1" style="box-shadow: 0 5px 8px rgba(0,0,0,0);">
@@ -159,8 +160,7 @@
             <span class="chart-container">
               <canvas id="myChart2" width="1000" height="400" ></canvas> 
             </span>
-            <span class="chart-container">
-              <canvas id="myChart3" width="1000" height="400" ></canvas> 
+            <span id="text-table-container">
             </span>
           </div>
         </div>
@@ -203,6 +203,7 @@
     </div>
   </div>
 </body>
+
 <script type="text/javascript" src="Chart.bundle.min.js"></script>
 <script type="text/javascript" src="./scriptFront.js"></script>
 <script type="text/javascript" src="./scriptBack.js"></script>
