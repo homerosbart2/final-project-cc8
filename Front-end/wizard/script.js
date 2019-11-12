@@ -300,7 +300,7 @@ const saveEvent = (actualPage) => {
             let if_left_freq = document.querySelector("#if-left-freq").value;
             if(createPlatId && if_left_freq){
                 nuevoEvento["createPlatId"] = createPlatId.value;
-                nuevoEvento["if_left_freq"] = if_left_freq;
+                nuevoEvento["if_left_freq"] = parseInt(if_left_freq);
             }else return false;
             break;
         case 1:
@@ -310,6 +310,7 @@ const saveEvent = (actualPage) => {
                 let splited = ifSelection.value.split("-");
                 let freq = document.querySelector('#freq-hardware').value;
                 if(freq){
+                    freq = parseInt(freq);
                     control = true;
                     nuevoEvento["hardwareFreq"] = freq;
                 }else delete nuevoEvento["hardwareFreq"];
@@ -317,6 +318,7 @@ const saveEvent = (actualPage) => {
                 if(platforms[splited[0]].hardware[splited[1]].type == "input"){
                     let sensor = document.querySelector('#sensor-hardware').value;
                     if(sensor){
+                        sensor = parseInt(sensor);
                         control = true;
                         nuevoEvento["hardwareSensor"] = sensor;
                     }else {
@@ -348,6 +350,7 @@ const saveEvent = (actualPage) => {
                 let splited = thenSelection.value.split("-");
                 let freq = document.querySelector('#freq-then').value;
                 if(freq){
+                    freq = parseInt(freq);
                     control = true;
                     nuevoEvento["thenFreq"] = freq;
                 }else delete nuevoEvento["thenFreq"];
@@ -378,6 +381,7 @@ const saveEvent = (actualPage) => {
                 let splited = elseSelection.value.split("-");
                 let freq = document.querySelector('#freq-else').value;
                 if(freq){
+                    freq = parseInt(freq);
                     control = true;
                     nuevoEvento["elseFreq"] = freq;
                 }else delete nuevoEvento["elseFreq"];
