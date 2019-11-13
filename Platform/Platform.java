@@ -45,10 +45,12 @@ public class Platform {
     private static String db = "default.db";
     private static Connection sqliteConnection;
     private static Statement statement;
+
     public static String id = "1234567890";
     public static String ip = "noip";
     public static int port = 80;
     public static HashSet<String> hardwareIds = new HashSet<String>();
+    public static HashMap<String, Hardware> hardwareTable = new HashMap<String, Hardware>();
 
     private static void setIpAddress() {
         try {
@@ -58,7 +60,14 @@ public class Platform {
         }
     }
 
-    public static ResultSet executeQuery(String query) throws SQLException {
+    public static boolean isLocalIp(String url) {
+        String[] socket = url.split(":");
+        String ip = socket[0];
+        
+        return ip.equals(Platform.ip) || ip.equals("127.0.0.1");
+    }
+
+    public static synchronized ResultSet executeQuery(String query) throws SQLException {
         if (Platform.sqliteConnection == null || Platform.sqliteConnection.isClosed() || Platform.statement == null) {
             Platform.sqliteConnection = Platform.connect();
             Platform.statement = sqliteConnection.createStatement();
@@ -82,6 +91,9 @@ public class Platform {
 
         Platform platform = new Platform();
         platform.initializeServer();
+
+        EventsHandler eventsHandler = new EventsHandler();
+        eventsHandler.startEventsHandler();
     }
 
     public static Connection connect() {
@@ -95,7 +107,7 @@ public class Platform {
     }
 
     private void initializeServer(){
-        int nThreads = 20;
+        int nThreads = 16;
         Platform.port = 80;
 
         try {
@@ -138,7 +150,7 @@ public class Platform {
         try {
             String query = "CREATE TABLE IF NOT EXISTS requests (correlative int primary key, date datetime, socket varchar, id varchar, type boolean, frequency int, sensor int, status boolean, text varchar);";
             Platform.executeQuery(query);
-            query = "CREATE TABLE IF NOT EXISTS hardware(id varchar primary key, tag varchar, type boolean, status boolean, frequency int, text varchar);";
+            query = "CREATE TABLE IF NOT EXISTS hardware(id varchar primary key, tag varchar, type boolean, status boolean, frequency int, text varchar, sensor int);";
             Platform.executeQuery(query);
             query = "CREATE TABLE IF NOT EXISTS events (id varchar primary key, if_left_url varchar, if_left_id varchar, if_left_freq int, if_operator varchar, if_right_sensor int, if_right_status boolean, if_right_freq int, if_right_text varchar, then_url varchar, then_id varchar, then_status boolean, then_freq int, then_text varchar, else_url varchar, else_id varchar, else_status boolean, else_freq int, else_text varchar);";
             Platform.executeQuery(query);
@@ -149,10 +161,20 @@ public class Platform {
                 eventCorrelative.set(Integer.parseInt(rs.getString("id").substring(2, 8)));
             }
 
-            query = "SELECT id FROM hardware;";
+            query = "SELECT * FROM hardware;";
             rs = Platform.executeQuery(query);
             while (rs.next()) {
-                Platform.hardwareIds.add(rs.getString("id"));
+                String id = rs.getString("id");
+                boolean status = rs.getBoolean("status");
+                int frequency = rs.getInt("frequency");
+                String text = rs.getString("text");
+                int sensor = rs.getInt("sensor");
+                boolean type = rs.getBoolean("type");
+
+                HardwareParams params = new HardwareParams(status, frequency, text, "", sensor, type ? HARDWARE_TYPE.INPUT : HARDWARE_TYPE.OUTPUT);
+
+                Platform.hardwareIds.add(id);
+                Platform.hardwareTable.put(id, new Hardware(id, params));
             }
             
             query = "SELECT COUNT(id) as count, MAX(correlative) as max FROM requests;";
@@ -338,18 +360,36 @@ class Handler implements Runnable {
                     String sensor =         params.containsKey("sensor") ? params.get("sensor") : "-1";
                     String status =         params.containsKey("status") ? params.get("status") : "false";
                     String text =           params.containsKey("text") ? params.get("text") : "";
+                    String tag =            params.containsKey("tag") ? params.get("tag") : "";
 
                     if (!Platform.hardwareIds.contains(id)) {
                         Platform.hardwareIds.add(id);
                         String query = "INSERT INTO hardware VALUES ('"
-                            + id + "','',"
+                            + id + "','"
+                            + tag + "',"
                             + type + ","
                             + status + ","
                             + frequency + ",'"
-                            + text + "');";
+                            + text + "',"
+                            + sensor + ");";
+
+                        Platform.executeQuery(query);
+                    } else {
+                        String query = "UPDATE hardware SET sensor = " + sensor + " WHERE id = '" + id + "';";
 
                         Platform.executeQuery(query);
                     }
+
+                    HardwareParams hardwareParams = new HardwareParams(
+                        Boolean.parseBoolean(status),
+                        Integer.parseInt(frequency),
+                        text,
+                        "",
+                        Integer.parseInt(sensor),
+                        Boolean.parseBoolean(type) ? HARDWARE_TYPE.INPUT : HARDWARE_TYPE.OUTPUT
+                    );
+
+                    Platform.hardwareTable.put(id, new Hardware(id, hardwareParams));
 
                     String query = "INSERT INTO requests VALUES ("
                         + (Platform.correlative.getAndIncrement() + 1) + ",'"
@@ -425,6 +465,7 @@ class Handler implements Runnable {
                     response += ", \"search\": {"; 
 
                     String query = "SELECT * FROM hardware WHERE id = '" + frontendRequest.search.id_hardware + "';";
+
                     ResultSet rs = Platform.executeQuery(query);
                     while (rs.next()) {
                         response += "\"id_hardware\": \"" + rs.getString("id") + "\", \"type\": \"";
@@ -432,13 +473,17 @@ class Handler implements Runnable {
                         response += "\"";
                     }
                     response += "}, \"data\": {";
+                    
                     query = "SELECT * FROM requests WHERE id = '" + frontendRequest.search.id_hardware + "' AND date > '" + frontendRequest.search.start_date + "' AND date < '" + frontendRequest.search.finish_date + "';";
                     rs = Platform.executeQuery(query);
+                    boolean withData = false;
                     while (rs.next()) {
                         response += "\"" + rs.getString("date") + "\": {\"sensor\": " + rs.getString("sensor") + ", \"status\": " + rs.getBoolean("status") + ", \"freq\": " + rs.getInt("frequency") + ", \"text\": \"" + rs.getString("text");
                         response += "\"}, ";
+                        withData = true;
                     }
-                    response = response.substring(0, response.length() - 2);
+
+                    if (withData) { response = response.substring(0, response.length() - 2); }
                     response += "}";
                     rs.close();
                 } else if (fileName.equals("info")) {
@@ -461,8 +506,7 @@ class Handler implements Runnable {
                             query += hardware.params.tag != null ? "tag = '" + hardware.params.tag + "', " : "";
                             query += hardware.params.text != null ? "text = '" + hardware.params.text + "', " : "";
                             query += hardware.params.freq != 0 ? "frequency = " + hardware.params.freq + ", " : "";
-                            query += hardware.params.status != null ? "status = " + hardware.params.status + ", " : "";
-                            query = query.substring(0, query.length() - 2);
+                            query += "status = " + hardware.params.status;
                             query += " WHERE id = '" + hardware.id + "';";
                             System.out.println(query);
                             Platform.executeQuery(query);
@@ -475,14 +519,23 @@ class Handler implements Runnable {
                    
                 } else if (fileName.equals("create")) {
                     try {
-                        Create create = frontendRequest.create;
-                        if (create != null) {
+                        Event newEvent = frontendRequest.create;
+                        if (newEvent != null) {
                             String eventCorrelative = "EV" + decimalFormat.format(Platform.eventCorrelative.getAndIncrement() + 1);
-                            Condition condition = create.condition;
+                            Condition condition = newEvent.condition;
                             Left left = condition.left;
                             Right right = condition.right;
-                            Consequence consequence = create.consequence;
-                            Consequence alternative = create.alternative;
+                            Consequence consequence = newEvent.consequence;
+                            Consequence alternative = newEvent.alternative;
+
+                            if (Platform.isLocalIp(left.url)) {
+                                EventsHandler.localEvents.put(eventCorrelative, newEvent);
+                            } else {
+                                EventsHandler.remoteEvents.put(eventCorrelative, newEvent);
+                                Thread remoteEventHandler = new Thread(new RemoteEventHandler(eventCorrelative));
+                                EventsHandler.remoteEventHandlers.add(remoteEventHandler);
+                                remoteEventHandler.start();
+                            }
 
                             if (condition != null && consequence != null && alternative != null) {
                                 String query = "INSERT INTO events VALUES ('"
@@ -574,6 +627,14 @@ class Handler implements Runnable {
     
                         try {
                             Platform.executeQuery(query);
+
+                            Event updatedEvent = Event.selectEvent(eventCorrelative);
+                            if (Platform.isLocalIp(updatedEvent.condition.left.url)) {
+                                EventsHandler.localEvents.put(eventCorrelative, updatedEvent);
+                            } else {
+                                EventsHandler.remoteEvents.put(eventCorrelative, updatedEvent);
+                            }
+
                             response += ", \"status\": \"OK\"";
                         } catch (SQLException e) {
                             response += ", \"status\": \"ERROR\"";
@@ -586,6 +647,9 @@ class Handler implements Runnable {
                     if (delete != null) {
                         String eventCorrelative = delete.id;
                         String query = "DELETE FROM events WHERE id='" + eventCorrelative + "';";
+
+                        EventsHandler.remoteEvents.remove(eventCorrelative);
+                        EventsHandler.localEvents.remove(eventCorrelative);
     
                         System.out.println("QUERY:\t" + query);
     

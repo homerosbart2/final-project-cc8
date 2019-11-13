@@ -9,7 +9,7 @@ public class FrontendRequest {
     public String url;
     public String date;
     public Search search;
-    public Create create;
+    public Event create;
     public Update update;
     public Delete delete;
     private Object change;
@@ -60,55 +60,16 @@ class Search {
     public String finish_date;
 }
 
-class Hardware {
+class Update extends Event {
     public String id;
-    public HardwareParams params;
-}
 
-class HardwareParams {
-    public String status;
-    public int freq;
-    public String text;
-    public String tag;
-}
-
-class Create {
-    public Condition condition;
-    public Consequence consequence;
-    public Consequence alternative;
-}
-
-class Update extends Create {
-    public String id;
+    public Update(String id, Condition condition, Consequence consequence, Consequence alternative) {
+        super(condition, consequence, alternative);
+        
+        this.id = id;
+    }
 }
 
 class Delete {
     public String id;
-}
-
-class Condition {
-    public Left left;
-    public String operator;
-    public Right right;
-}
-
-class Consequence {
-    public String url;
-    public String id;
-    public boolean status;
-    public int freq;
-    public String text;
-}
-
-class Left {
-    public String url;
-    public String id;
-    public int freq;
-}
-
-class Right {
-    public int sensor;
-    public boolean status;
-    public int freq;
-    public String text;
 }
