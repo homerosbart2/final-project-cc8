@@ -24,6 +24,38 @@ refresh.addEventListener('click', () => {
 	consultarPlataformas();
 });
 
+function alertError(title, message) {
+	new PNotify({
+		title: title,
+		text: message,
+		type: 'error'
+	  });
+}
+
+function alertOK(title, message) {
+	new PNotify({
+		title: title,
+		text: message,
+		type: 'success'
+	});
+}
+
+function textTable(data){
+	let tabla = `<table>
+		<tr>
+			<th>Fecha</th>
+			<th>Texto</th>
+		</tr>`;
+	for(fecha in data){
+		tabla += `<tr>
+			<td>${fecha}</td>
+			<td>${data[fecha].text}</td>
+		</tr>`
+	}
+	tabla += "</table>";
+	document.querySelector('#text-table-container').innerHTML = tabla;
+}
+
 function eventCard(id, fecha, platId){
 	return `
 	<div class="events-card" id="event-${platId}-${id}">
@@ -121,11 +153,17 @@ function deleteEvent(platId, id) {
 
 	http.onreadystatechange = () => {
 		if(http.readyState == XMLHttpRequest.DONE){
-			console.log(http.responseText);
-			let respuesta = JSON.parse(http.responseText);
-			if(respuesta.status && respuesta.status == "OK"){
-				document.querySelector("#div").remove();
-			}else{}
+			try{
+				console.log(http.responseText);
+				let respuesta = JSON.parse(http.responseText);
+				if(respuesta.status && respuesta.status == "OK"){
+					document.querySelector(`#event-${platId}-${id}`).remove();
+				}else{
+					alertError("Error", "No se pudo eliminar el evento");
+				}
+			}catch(error){
+				alertError("Error", "No se pudo eliminar el evento");
+			}
 		}
 	}
 
@@ -138,6 +176,7 @@ function showUpdateEvent(platId, id){
 	updateEvent = true;
 	let eventDetails = listaEventos[id];
 	nuevoEvento = {
+		if_left_freq: eventDetails.if_left_freq,
 		createPlatId: platId,
 		eventId: id,
 		hardwareFreq: eventDetails.if_right_freq,
@@ -257,7 +296,7 @@ function changeHardware(idPlat, idHW){
 		status = document.querySelector(`#switch-${idPlat}-${idHW}`);
 		text = document.querySelector(`#text-${idPlat}-${idHW}`);
 	}
-	if(freq.value != ""){
+	if(outputBool || freq.value != ""){
 		let control = true;
 		if(outputBool){
 			if(status != null && text != null && text.value != ""){
@@ -268,7 +307,8 @@ function changeHardware(idPlat, idHW){
 			let http = new XMLHttpRequest();
 			let url = 'changeHW.php';
 			let fecha = new Date().toISOString();
-			let params = `idPlat=${idPlat}&idHW=${idHW}&date=${fecha}&type=${type}&freq=${freq.value}`;
+			let params = `idPlat=${idPlat}&idHW=${idHW}&date=${fecha}&type=${type}`;
+			if(freq.value) params += `&freq=${freq.value}`;
 			if(outputBool) params += `&status=${status.checked}&text=${text.value}`;
 
 			console.log(params);
@@ -279,7 +319,13 @@ function changeHardware(idPlat, idHW){
 						console.log(http.responseText);
 						let respuesta = JSON.parse(http.responseText);
 						console.log(respuesta.status);
+						if(respuesta.status && respuesta.status == "OK") {
+							alertOK("OK", "Se realizo el cambio correctamente");
+						}else{
+							alertError("Error", "No se pudo cambiar");
+						}
 					}catch (error){
+						alertError("Error", "No se pudo cambiar");
 						console.log("error");
 					}
 				}
@@ -320,10 +366,13 @@ function search(){
 						let sensor = undefined;
 						let freq = [];
 						let status = undefined;
+						document.querySelector('#text-table-container').innerHTML = "";
 						if(platforms[search_id_plat].hardware[search_id_hw].type == "input")
 							sensor = [];
-						else
+						else{
 							status = [];
+							textTable(data);
+						}
 						let i = 0;
 						for(let fecha in data){
 							fechas.push(fecha);
@@ -343,7 +392,9 @@ function search(){
 							});
 						}
 						createNewChart(fechas, sensor, freq, status);
-					} catch (error) {}
+					} catch (error) {
+						alertError("Error", "Ocurrio un error al realizar la busqueda");
+					}
 				}
 			}
 
@@ -407,6 +458,7 @@ function createEvent(){
 	let thenSelection = nuevoEvento.thenHardware;
 	let elseSelection = nuevoEvento.elseHardware;
 	let condition = nuevoEvento.condicion;
+	let if_left_freq = nuevoEvento.if_left_freq;
 	if(createPlatId && thenSelection && elseSelection && condicionHardware && condition){
 		condicionHardware = condicionHardware.split("-");
 		thenSelection = thenSelection.split("-");
@@ -420,28 +472,28 @@ function createEvent(){
 		let request = {
 			idPlat: createPlatId,
 			id: platforms[createPlatId].nombre,
-			url: platforms[createPlatId].ip,
+			url: platforms[createPlatId].ip + ":" + platforms[createPlatId].puerto,
 			puerto: platforms[createPlatId].puerto,
 			date: new Date().toISOString(),
 			create: {
 				if: {
 					left:{
 						platId: if_platId,
-						url: platforms[if_platId].ip,
+						url: platforms[if_platId].ip + ":" + platforms[if_platId].puerto,
 						id: if_hwId,
-						freq: 6000
+						freq: if_left_freq
 					},
 					condition: condition,
 					right: {}
 				},
 				then: {
 					platId: then_platId,
-					url: platforms[then_platId].ip,
+					url: platforms[then_platId].ip + ":" + platforms[then_platId].puerto,
 					id: then_hwId
 				},
 				else: {
 					platId: else_platId,
-					url: platforms[else_platId].ip,
+					url: platforms[else_platId].ip + ":" + platforms[else_platId].puerto,
 					id: else_hwId
 				}
 			}
@@ -480,6 +532,7 @@ function createEvent(){
 				try{
 					let respuesta = JSON.parse(http.responseText);
 					if(respuesta.status && respuesta.status == "OK"){
+						alertOK("OK", "Evento Creado Exitosamente");
 						console.log("Evento creado Exitosamente");
 						bodyContainer.classList.add('shown');
 						eventos.classList.remove('shown');
@@ -487,9 +540,11 @@ function createEvent(){
 						nuevoEvento = {};
 						regresar(0);
 					}else{
+						alertError("Error", "Ocurrio un error al crear el evento");
 						console.log("Ocurrio un error al crear el evento");
 					}
 				}catch(error){
+					alertError("Error", "Ocurrio un error al crear el evento");
 					console.log("error");
 					console.log(error);
 				}
@@ -507,6 +562,12 @@ function createEvent(){
 
 document.onreadystatechange = () => {
 	if (document.readyState == "complete") {
+		let fecha = new Date();
+		fecha = fecha.getFullYear()+"-"+(fecha.getMonth()+1)+"-"+fecha.getDate();
+		document.querySelector("#fecha-finish").value = fecha;
+		document.querySelector("#fecha-start").value = fecha;
+		document.querySelector("#hora-finish").value = "00:00:00";
+		document.querySelector("#hora-start").value = "00:00:00";
 		consultarPlataformas();
 		//consultarHardware();
 		//loadFlipButton();

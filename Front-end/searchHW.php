@@ -43,7 +43,7 @@
             foreach ($data as $fechaReg => $registro) {
                 $valor_sensor = 0;
                 $valor_freq = 0;
-                $valor_status = 0;
+                $valor_status = "FALSE";
                 $valor_text = "NULL";
                 if(array_key_exists('sensor', $registro)) $valor_sensor = $registro['sensor'];
                 if(array_key_exists('status', $registro))

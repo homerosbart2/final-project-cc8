@@ -1,13 +1,16 @@
 <?php
 
-include 'posgresql.php';
+include 'postgresql.php';
 
 $idPlat = $_POST['idPlat'];
 $idHW = $_POST['idHW'];
 $fecha = $_POST['date'];
 $type = $_POST['type'];
 $status = null;
-$freq = $_POST['freq'];
+$freq = false;
+if(isset($_POST['freq'])){
+    $freq = $_POST['freq'];
+}
 $text = null;
 $inputBool = ($type === "input") ? true : false;
 if(!$inputBool){
@@ -23,11 +26,12 @@ if ($result) {
         'url' => $result['ip'],
         'date' => $fecha,
         'change' => array(
-            $idHW => array(
-                'freq' => (int)$freq,
-            )
+            $idHW => array()
         )
     );
+    if($freq != false){
+        $resquest['change'][$idHW]['freq'] = (int)$freq;
+    }
     if(!$inputBool){
         $resquest['change'][$idHW]['status'] = $status;
         $resquest['change'][$idHW]['text'] = $text;
